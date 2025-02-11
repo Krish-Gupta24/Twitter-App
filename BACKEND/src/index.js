@@ -4,6 +4,7 @@ import dbConnection from "./db/index.js"
 import express from "express"
 import app from "./app.js"
 import cors from "cors"
+import userRouter from "./routes/user.route.js"
 
 dotenv.config()
 
@@ -15,3 +16,6 @@ app.listen(PORT, () => {
 app.use(cors())
 app.use(cookieParser())
 app.use(express.json())
+
+//routes
+app.use("/api/user",userRouter)
