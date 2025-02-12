@@ -1,8 +1,7 @@
 import Posts from "../models/posts.modals.js";
 
 export const addPost = async (req, res) => {
-  const userId = req.user._id;
-
+  const userId = req.user.id;
   const {
     content,
     image = "",
@@ -48,26 +47,29 @@ export const addPost = async (req, res) => {
 };
 
 export const updatePost = async (req, res) => {
+  const userId = req.user.id;
   const postId = req.params.postId;
   const { content, image } = req.body;
 
   try {
-    // Create an update object and only include provided fields
+    // Find the post and ensure it belongs to the user
+    const post = await Posts.findOne({ _id: postId, userId });
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post not found or unauthorized" });
+    }
+
+    // Prepare update data
     const updateData = {};
     if (content) updateData.content = content;
     if (image !== undefined) updateData.image = image;
 
+    // Update the post
     const updatedPost = await Posts.findByIdAndUpdate(
       postId,
       { $set: updateData },
-      { new: true } // Returns the updated document
+      { new: true } // Return updated post
     );
-
-    if (!updatedPost) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Post was not found" });
-    }
 
     res.status(200).json({ success: true, message: "Post updated", post: updatedPost });
   } catch (error) {
@@ -75,3 +77,30 @@ export const updatePost = async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 };
+
+
+export const deletePost = async (req, res) => {
+  const userId = req.user.id;
+  const postId = req.params.postId;
+  console.log(postId);
+  
+  if (!postId) {
+    return res.status(400).json({
+      error: true,
+      message: "Post ID is required",
+    });
+  }
+  try {
+    const post = await Posts.findByIdAndDelete({_id:postId,userId})
+    return res.json({
+      error: false,
+      message: "Post deleted",
+      post
+    })
+  } catch (error) {
+    return res.json({
+      error: true,
+      message:"Server error"
+    })
+  }
+}
