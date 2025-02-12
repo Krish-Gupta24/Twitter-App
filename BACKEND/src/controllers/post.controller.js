@@ -104,3 +104,30 @@ export const deletePost = async (req, res) => {
     })
   }
 }
+
+export const userPosts = async (req,res)=>{
+  const userId = req.params.id;
+  try {
+    const posts = await Posts.find({ userId: userId });
+    return res.status(200).json({error:false,posts});
+  } catch (error) {
+    return res.status(500).json({error:true,message:"Internal Server Error"});
+  }
+}
+
+export const getPost = async (req, res) => {
+  const postId = req.params.postId;
+  console.log(postId);
+  
+  try {
+		const post = await Posts.findById(postId);
+		if (!post) {
+			return res.status(404).json({ error: "Post not found" });
+		}
+
+		res.status(200).json(post);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+};
+
