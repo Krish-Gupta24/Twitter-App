@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
-const verifyJWT = (req, res, next) => {
-  const token = req.cookies.authToken; 
+const authMiddleware = (req, res, next) => {
+  const token = req.cookies.accessToken; 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized, no token" });
   }
@@ -17,4 +17,4 @@ const verifyJWT = (req, res, next) => {
   }
 };
 
-export default verifyJWT;
+export default authMiddleware;

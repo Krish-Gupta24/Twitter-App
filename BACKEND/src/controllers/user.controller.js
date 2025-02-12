@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import cookieParser from "cookie-parser"
 
-const generateTokens = async (userId) => {
+const generateTokens = async (userId,res) => {
     try {
         const token = jwt.sign(
             { id: userId },
@@ -11,9 +11,16 @@ const generateTokens = async (userId) => {
             { expiresIn: "1d" }
         )
     
-        return token;
+        return res.cookie("token", token, {
+          httpOnly: true,
+          secure: true,
+          maxAge: 7*24*60*60*1000
+        })
     } catch (error) {
-        console.log("server error");
+      res.json({
+        error: true,
+        message:"server error"
+      })
     }
 }
 
@@ -43,29 +50,15 @@ const signupUser = async (req, res) => {
 
     if (!userId) return res.status(400).json({ success: false, message: "userid was not found" });
 
-    const token = await generateTokens(userId);
-    
-    if (!token) {
-      return res.status(400).json({ success: false, message: "no tokens were created" });
-    }
-
+    await generateTokens(userId,res);
     const userResponse = user.toObject();
 
     delete userResponse.password;
 
-    res.cookie("accessToken", token, {
-      httpOnly: true,
-      secure: true,
-
-      maxAge: 7*24*60*60*1000
-    })
+    
       res.status(201).json({
         message: "User registered successfully",
-        user: {
-          id: user._id,
-          fullName: user.fullName,
-          email: user.email,
-        },
+        user: userResponse
       });
   
     } catch (error) {
@@ -75,9 +68,59 @@ const signupUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-}
-export {
-    signupUser,
-    generateTokens,
+  try {
+    const { email, password } = req.body
+    if (!email) {
+      return res.status(400).json({ message: "Email not entered" });
+    }
+    if (!password) {
+      return res.status(400).json({ message: "Password not entered" });
+    }
+  
+    const user = await User.findOne({ email });
+      if (!user) {
+        return res.status(400).json({ message: "User donot exists" });
+    }
+    const passwordCheck = bcrypt.compare(password, user.password)
+    
+    if (!passwordCheck) {
+      return res.status(400).json({ message: "Password incorrect" });
+    }
+  
+    const userId= user._id
+    await generateTokens(userId,res);
+  
+    const userResponse = user.toObject();
 
+    delete userResponse.password;
+  
+  
+    return res.status(201).json({
+      message: "Logged In",
+      user: userResponse
+    }); 
+  } catch (error) {
+    res.json({
+      error: true,
+      message:"server error"
+    })
+  }
+}
+
+const logoutUser = async (req,res) => {
+  try {
+    res.clearCookie("token", " ")
+    return res.status(200).json({ message: "Logout done" });
+  } catch (error) {
+    return res.json({
+      message: "Server error"
+    });
+  }
+}
+
+export {
+  signupUser,
+  generateTokens,
+  loginUser,
+  logoutUser
 }

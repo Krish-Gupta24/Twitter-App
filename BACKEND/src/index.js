@@ -4,7 +4,8 @@ import dbConnection from "./db/index.js"
 import express from "express"
 import app from "./app.js"
 import cors from "cors"
-import userRouter from "./routes/user.route.js"
+import userRouter from "./routes/user.routes.js"
+import postRouter from "./routes/posts.routes.js"
 
 dotenv.config()
 
@@ -18,4 +19,5 @@ app.use(cookieParser())
 app.use(express.json())
 
 //routes
-app.use("/api/user",userRouter)
+app.use("/api/user", userRouter)
+app.use("/api/post",postRouter)
