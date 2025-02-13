@@ -25,11 +25,27 @@ const postSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
-    comments: [
+    replies: [
       {
-        user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-        text: String,
-        createdAt: { type: Date, default: Date.now },
+        userId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required:true
+        },
+        text: {
+          type: String,
+          required:true
+        },
+        createdAt: {
+          type: Date,
+          default: Date.now
+        },
+        userPic: {
+          type:String,
+        },
+        username: {
+          type:String
+        }
       },
     ],
   },

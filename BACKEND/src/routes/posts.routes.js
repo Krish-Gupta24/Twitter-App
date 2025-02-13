@@ -8,5 +8,6 @@ router.route("/updatepost/:postId").patch(verifyJWT, updatePost);
 router.route("/deletepost/:postId").delete(verifyJWT, deletePost);
 router.route("/allpost/:userId").get(userPosts);
 router.route("/post/:postId").get(getPost);
+router.route("/reply/:postId").patch(getPost);
 
 export default router;

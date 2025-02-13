@@ -78,7 +78,6 @@ export const updatePost = async (req, res) => {
   }
 };
 
-
 export const deletePost = async (req, res) => {
   const userId = req.user.id;
   const postId = req.params.postId;
@@ -131,3 +130,45 @@ export const getPost = async (req, res) => {
 	}
 };
 
+export const replies = async (req, res) => {
+  const { text } = req.body;
+	const postId = req.params.postId;
+	const userId = req.user.id;
+	const userProfilePic = req.user.profilePic;
+  const username = req.user.username;
+
+  console.log("Received postId:", postId);
+
+  
+  if (!text) {
+    res.json({
+      error: true,
+      message:"No reply rcd"
+    })
+  }
+
+  try {
+    const post = await Posts.findById(postId);
+    if (!post) {
+      res.json({
+        error: true,
+        message:"No post found"
+      })
+    }
+  
+    const reply = { userId, userProfilePic, username, text }
+    
+    post.replies.push(reply)
+    await post.save()
+  
+    res.json({
+      error: false,
+      message:"reply added"
+    })
+  } catch (error) {
+    res.json({
+      error: true,
+      message:"server error"
+    })
+  }
+}

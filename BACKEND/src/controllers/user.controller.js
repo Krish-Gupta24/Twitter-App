@@ -8,7 +8,7 @@ const generateTokens = async (userId,res) => {
         const token = jwt.sign(
             { id: userId },
             process.env.JWT_SECRET,
-            { expiresIn: "1d" }
+            { expiresIn: "7d" }
         )
     
         return res.cookie("token", token, {
