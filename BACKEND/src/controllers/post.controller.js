@@ -7,7 +7,7 @@ export const addPost = async (req, res) => {
     image = "",
     likeCount = [],
     shared = 0,
-    comments = [],
+    replies = [],
   } = req.body;
 
   if (!content) {
@@ -16,8 +16,8 @@ export const addPost = async (req, res) => {
   if (!Array.isArray(likeCount)) {
     return res.status(400).json({ message: "Likes must be an array" });
   }
-  if (!Array.isArray(comments)) {
-    return res.status(400).json({ message: "Comments must be an array" });
+  if (!Array.isArray(replies)) {
+    return res.status(400).json({ message: "Replies must be an array" });
   }
   if (typeof shared !== "number") {
     return res.status(400).json({ message: "Shared count must be a number" });
@@ -31,7 +31,7 @@ export const addPost = async (req, res) => {
       image,
       likeCount,
       shared,
-      comments,
+      replies,
     });
 
     await newPost.save()
@@ -105,9 +105,9 @@ export const deletePost = async (req, res) => {
 }
 
 export const userPosts = async (req,res)=>{
-  const userId = req.params.id;
+  const username = req.params.id;
   try {
-    const posts = await Posts.find({ userId: userId });
+    const posts = await Posts.find({ username:username });
     return res.status(200).json({error:false,posts});
   } catch (error) {
     return res.status(500).json({error:true,message:"Internal Server Error"});

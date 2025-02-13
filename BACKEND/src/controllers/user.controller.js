@@ -26,7 +26,10 @@ const generateTokens = async (userId,res) => {
 
 const signupUser = async (req, res) => {
     try {
-    const { fullName, email, password } = req.body;
+      const { fullName, email, password, username } = req.body;
+      if (!username) {
+        return res.status(400).json({ message: "Username not entered" });
+      }
     if (!fullName) {
       return res.status(400).json({ message: "Full name not entered" });
     }
@@ -44,7 +47,7 @@ const signupUser = async (req, res) => {
       
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
-    const user = new User({ fullName, email, password: hashedPassword });
+    const user = new User({ username,fullName, email, password: hashedPassword });
     await user.save();
     const userId = user._id;
 
