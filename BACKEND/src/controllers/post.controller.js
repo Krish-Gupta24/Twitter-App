@@ -1,4 +1,5 @@
 import Posts from "../models/posts.modals.js";
+import User from "../models/user.models.js";
 
 export const addPost = async (req, res) => {
   const userId = req.user.id;
@@ -41,9 +42,10 @@ export const addPost = async (req, res) => {
       message: "Post was created",
     });
   } catch (error) {
-    console.error("Error creating post:", error);
-    return res.status(500).json({ message: "Internal Server Error" });
-  }
+    console.error("Error creating post:", error.message);
+    return res.status(500).json({ message: "Internal Server Error", error: error.message });
+}
+
 };
 
 export const updatePost = async (req, res) => {
@@ -137,9 +139,6 @@ export const replies = async (req, res) => {
 	const userProfilePic = req.user.profilePic;
   const username = req.user.username;
 
-  console.log("Received postId:", postId);
-
-  
   if (!text) {
     res.json({
       error: true,
@@ -172,3 +171,65 @@ export const replies = async (req, res) => {
     })
   }
 }
+
+export const likeUnlikePost = async (req, res) => {
+  const userId = req.user.id;
+  const postId = req.params.postId;
+
+  try {
+    const post = await Posts.findById(postId);
+    if (!post) {
+      return res.status(404).json({ success: false, message: "Post not found" });
+    }
+
+    const isLiked = post.likeCount.includes(userId);
+
+    const updatedPost = await Posts.findByIdAndUpdate(
+      postId,
+      isLiked ? { $pull: { likeCount: userId } } : { $addToSet: { likeCount: userId } },
+      { new: true }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: isLiked ? "Post unliked" : "Post liked",
+      likes: updatedPost.likeCount.length, // Return total likes count
+      updatedPost,
+    });
+  } catch (error) {
+    console.error("Error in likeUnlikePost:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+export const getFeed = async (req, res) => {
+  const userId = req.user.id;
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(400).json({ success: false, message: "No user found" });
+    }
+
+    const followings = user.followings;
+
+    const feedPosts = await Posts.find({ userId: { $in: followings } }).sort({
+      createdAt: -1,
+    });
+
+    if (!followings) {
+      return res
+        .status(400)
+        .json({ success: true, message: "Follow people to get feed" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Feed is fetched", feedPosts });
+  } catch (error) {
+    console.log("Error in getFeed :: post controller ::", error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal Server error" });
+  }
+};

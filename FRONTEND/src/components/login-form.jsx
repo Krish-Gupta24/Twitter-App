@@ -40,7 +40,10 @@ export function LoginForm({
                   </div>
                   <Input id="password" type="password" required placeholder="Enter Password" />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button
+                  type="submit"
+                  className="w-full"
+                >
                   Login
                 </Button>
               </div>
@@ -72,7 +75,7 @@ export function LoginForm({
                 Don&apos;t have an account?{" "}
                 <a href="/signin" className="underline underline-offset-4">
                   Sign up
-                </a>
+                </a>  
               </div>
             </div>
           </form>

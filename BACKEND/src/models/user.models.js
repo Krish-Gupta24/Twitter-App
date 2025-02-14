@@ -23,8 +23,19 @@ const userSchema = new mongoose.Schema({
     },
     username: {
         type: String,
-        required:true
-    }
+        required: true,
+        unique:true,
+    },
+    followers: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "User",
+        default: [],
+    },
+    followings: {
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: "User",
+        default: [],
+    },
 
 }, { timestamps: true })
 

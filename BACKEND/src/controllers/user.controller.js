@@ -1,9 +1,8 @@
 import User from "../models/user.models.js"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-import cookieParser from "cookie-parser"
 
-const generateTokens = async (userId,res) => {
+export const generateTokens = async (userId,res) => {
     try {
         const token = jwt.sign(
             { id: userId },
@@ -24,7 +23,7 @@ const generateTokens = async (userId,res) => {
     }
 }
 
-const signupUser = async (req, res) => {
+export const signupUser = async (req, res) => {
     try {
       const { fullName, email, password, username } = req.body;
       if (!username) {
@@ -70,7 +69,7 @@ const signupUser = async (req, res) => {
     }
 };
 
-const loginUser = async (req, res) => {
+export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body
     if (!email) {
@@ -110,7 +109,7 @@ const loginUser = async (req, res) => {
   }
 }
 
-const logoutUser = async (req,res) => {
+export const logoutUser = async (req,res) => {
   try {
     res.clearCookie("token", " ")
     return res.status(200).json({ message: "Logout done" });
@@ -121,9 +120,74 @@ const logoutUser = async (req,res) => {
   }
 }
 
-export {
-  signupUser,
-  generateTokens,
-  loginUser,
-  logoutUser
+export const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { fullName, email, password, profilePic, bio, username } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (username) user.username = username;
+    if (email) user.email = email;
+    if (fullName) user.fullName = fullName;
+    if (bio) user.bio = bio;
+    if (profilePic) user.profilePic = profilePic;
+    
+  
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      user.password = await bcrypt.hash(password, salt);
+    }
+
+    
+    await user.save();
+
+    res.status(200).json({ message: "Profile updated successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const followUnfollowUser = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    const userToFollow = await User.findById(id);
+    if (!userToFollow) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    if (userToFollow._id.toString() === userId) {
+      return res.status(400).json({ message: "You can't follow yourself" });
+    }
+    if (user.followings.includes(id)) {
+      user.followings = user.followings.filter((userId) => userId.toString() !== id);
+      userToFollow.followers = userToFollow.followers.filter((userId) => userId.toString() !== userId);
+    } else {
+      user.followings.push(id);
+      userToFollow.followers.push(userId);
+    }
+    await user.save();
+    await userToFollow.save();
+    res.status(200).json({ message: "Operation successful" });
+
+  }catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+}
+
+export const getUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId).populate("followers").populate("followings");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 }
