@@ -19,7 +19,7 @@ const Profile = () => {
           <div className="flex-1 ml-64 p-6 bg-background text-gray-200 min-h-screen">
             <Card className="p-8 bg-background shadow-2xl rounded-3xl border border-gray-700">
               <div className="flex items-center space-x-6">
-                <Avatar className="h-32 w-32 border-4 border-blue-500 shadow-xl">
+                <Avatar className="h-32 w-32 border-4 border-gray-700 shadow-xl">
                   <AvatarImage
                     src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
                     alt="Profile"
