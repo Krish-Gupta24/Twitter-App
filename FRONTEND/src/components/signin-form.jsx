@@ -2,21 +2,89 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axiosInstance from "@/utils/axiosInstance";
 
 export function SigninForm({ className, ...props }) {
+  const navigate = useNavigate()
+  const [username, setUsername] = useState("")
+  const [fullname, setFullname] = useState("")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+
+  const signup = async () => {
+    try {
+      const response = await axiosInstance.post("/user/signup", {
+        fullName: fullname,
+        username: username,
+        email: email,
+        password: password,
+      });
+
+      console.log("Signin Response:", response.data); // Debug full response
+
+      if ((response.status === 200 || response.status === 201) && response.data?.token) {
+        localStorage.setItem("token", response.data.token);
+        navigate("/home");
+      } else {
+        console.error("Signin failed: No token received", response.data);
+        //alert("Invalid email or password");
+      }
+    } catch (error) {
+      console.error("Signin failed:", error.response?.data || error.message);
+      alert(
+        error.response?.data?.message ||
+          "Signin failed. Please check your credentials."
+      );
+    }
+  };
+
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        signup();
+      }}
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Signin to your account</h1>
       </div>
       <div className="grid gap-6">
         <div className="grid gap-2">
+          <Label htmlFor="email">Fullname</Label>
+          <Input
+            id="name"
+            type="name"
+            placeholder="Enter Fullname"
+            value={fullname}
+            onChange={(e) => setFullname(e.target.value)}
+            required
+          />
+        </div>
+        <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="Enter Email" required />
+          <Input
+            id="email"
+            type="email"
+            placeholder="Enter Email"
+            value={email}
+            onChange={(e)=>setEmail(e.target.value)}
+            required />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Username</Label>
-          <Input id="username" type="username" placeholder="Enter Username" required />
+          <Input
+            id="username"
+            type="username"
+            placeholder="Enter Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="password">Password</Label>
@@ -24,6 +92,8 @@ export function SigninForm({ className, ...props }) {
             id="password"
             type="password"
             placeholder="Enter Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             required
           />
         </div>

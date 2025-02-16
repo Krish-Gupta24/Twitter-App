@@ -1,5 +1,6 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquareXTwitter } from "@fortawesome/free-brands-svg-icons";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
+
 
 import { LoginForm } from "@/components/login-form";
 
@@ -9,7 +10,7 @@ export default function LoginPage() {
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex justify-center gap-2 md:justify-start">
           <h1 className="flex items-center gap-2 font-medium decoration-clone">
-              <FontAwesomeIcon icon={faSquareXTwitter} />
+              <FontAwesomeIcon icon={faXTwitter} size='2x' />
             Twitter
           </h1>
         </div>

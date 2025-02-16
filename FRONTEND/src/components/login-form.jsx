@@ -2,13 +2,51 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { useState } from "react"
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons"
+import { useNavigate } from "react-router-dom";
+import axiosInstance from "@/utils/axiosInstance"
 
 export function LoginForm({
   className,
   ...props
 }) {
+  const [passwordVisible, setPasswordVisible] = useState(false)
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const login = async () => {
+    try {
+      const response = await axiosInstance.post("/user/login", {
+        email,
+        password,
+      });
+
+      console.log("Login Response:", response); // Debugging
+
+      if (response.status === 200 && response.data?.token) {
+        localStorage.setItem("token", response.data.token);
+        navigate("/home");
+      } else {
+        console.error("Login failed: No token received");
+        alert("Invalid email or password");
+      }
+    } catch (error) {
+      console.error("Login failed:", error);
+      alert("Login failed. Please check your credentials.");
+    }
+  };
+
+
+
+
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      onSubmit={async (e) => {
+        login()
+        e.preventDefault()
+      }} className={cn("flex flex-col gap-6", className)} {...props}>
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">Login to your account</h1>
         <p className="text-balance text-sm text-muted-foreground">
@@ -18,7 +56,13 @@ export function LoginForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" placeholder="m@example.com" required />
+          <Input
+            id="email"
+            type="email"
+            placeholder="Enter Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required />
         </div>
         <div className="grid gap-2">
           <div className="flex items-center">
@@ -30,7 +74,27 @@ export function LoginForm({
               Forgot your password?
             </a>
           </div>
-          <Input id="password" type="password" required />
+          <div className="relative">
+            <Input
+              id="password"
+              type={passwordVisible ? "text" : "password"}
+              required
+              placeholder="Enter Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+              onClick={() => setPasswordVisible(!passwordVisible)}
+            >
+              {passwordVisible ? (
+                <FontAwesomeIcon icon={faEyeSlash} />
+              ) : (
+                <FontAwesomeIcon icon={faEye} />
+              )}
+            </button>
+          </div>
         </div>
         <Button type="submit" className="w-full">
           Login

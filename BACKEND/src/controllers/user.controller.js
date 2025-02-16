@@ -1,113 +1,132 @@
 import User from "../models/user.models.js"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import { uploadOnCloudinary } from "../../utils/cloudinary.js";
 
-export const generateTokens = async (userId,res) => {
-    try {
-        const token = jwt.sign(
-            { id: userId },
-            process.env.JWT_SECRET,
-            { expiresIn: "7d" }
-        )
-    
-        return res.cookie("token", token, {
-          httpOnly: true,
-          secure: true,
-          maxAge: 7*24*60*60*1000
-        })
-    } catch (error) {
-      res.json({
-        error: true,
-        message:"server error"
-      })
-    }
-}
+export const generateTokens = async (userId) => {
+  // ❌ Remove `res` from parameters
+  try {
+    const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    return token; // ✅ Only return token, don't return res.cookie()
+  } catch (error) {
+    console.error("Token generation error:", error);
+    throw new Error("Token generation failed");
+  }
+};
+
 
 export const signupUser = async (req, res) => {
-    try {
-      const { fullName, email, password, username } = req.body;
-      if (!username) {
-        return res.status(400).json({ message: "Username not entered" });
-      }
-    if (!fullName) {
-      return res.status(400).json({ message: "Full name not entered" });
-    }
-    if (!email) {
-      return res.status(400).json({ message: "Email not entered" });
-    }
-    if (!password) {
-      return res.status(400).json({ message: "Password not entered" });
-    }
-  
+  try {
+    const { fullName, email, password, username } = req.body;
+
+    // Validate input fields
+    if (!username)
+      return res.status(400).json({ message: "Username is required" });
+    if (!fullName)
+      return res.status(400).json({ message: "Full name is required" });
+    if (!email) return res.status(400).json({ message: "Email is required" });
+    if (!password)
+      return res.status(400).json({ message: "Password is required" });
+
+    // Check if user already exists
     const existUser = await User.findOne({ email });
-    if (existUser) {
+    if (existUser)
       return res.status(400).json({ message: "User already exists" });
-    }
-      
-    const salt = bcrypt.genSaltSync(10);
-    const hashedPassword = bcrypt.hashSync(password, salt);
-    const user = new User({ username,fullName, email, password: hashedPassword });
+
+    // Hash password using async function
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    // Create new user
+    const user = new User({
+      username,
+      fullName,
+      email,
+      password: hashedPassword,
+    });
     await user.save();
-    const userId = user._id;
 
-    if (!userId) return res.status(400).json({ success: false, message: "userid was not found" });
+    // Generate JWT token
+    const token = await generateTokens(user._id);
 
-    await generateTokens(userId,res);
+    // Convert user object and remove sensitive info
     const userResponse = user.toObject();
-
     delete userResponse.password;
 
-    
-      res.status(201).json({
-        message: "User registered successfully",
-        user: userResponse
-      });
-  
-    } catch (error) {
-      console.error("Error signing up user:", error);
-      res.status(500).json({ message: "Server error", error: error.message });
-    }
+    // Set cookie with JWT token
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // Change to true in production
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Send response
+    res.status(201).json({
+      message: "User registered successfully",
+      user: userResponse,
+      token,
+    });
+  } catch (error) {
+    console.error("Error signing up user:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 };
+
 
 export const loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body
-    if (!email) {
-      return res.status(400).json({ message: "Email not entered" });
-    }
-    if (!password) {
+    console.log("Login request received:", req.body);
+
+    const { email, password } = req.body;
+    if (!email) return res.status(400).json({ message: "Email not entered" });
+    if (!password)
       return res.status(400).json({ message: "Password not entered" });
-    }
-  
+
     const user = await User.findOne({ email });
-      if (!user) {
-        return res.status(400).json({ message: "User donot exists" });
+
+    if (!user) {
+      console.log("User does not exist:", email);
+      return res.status(400).json({ message: "User does not exist" });
     }
-    const passwordCheck = bcrypt.compare(password, user.password)
-    
+
+    // ✅ Fix bcrypt.compare() (Add await)
+    const passwordCheck = await bcrypt.compare(password, user.password);
     if (!passwordCheck) {
+      console.log("Incorrect password for:", email);
       return res.status(400).json({ message: "Password incorrect" });
     }
-  
-    const userId= user._id
-    await generateTokens(userId,res);
-  
-    const userResponse = user.toObject();
 
-    delete userResponse.password;
-  
-  
-    return res.status(201).json({
+    const userId = user._id;
+
+    // ✅ Call `generateTokens()` to get the token
+    const token = await generateTokens(userId);
+
+    // ✅ Set the cookie here in `loginUser`
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false, // Change to `true` in production with HTTPS
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    console.log("User logged in:", userId);
+
+    return res.status(200).json({
       message: "Logged In",
-      user: userResponse
-    }); 
+      token, // ✅ Send token in response
+      user: { _id: user._id, email: user.email, fullName: user.fullName },
+    });
   } catch (error) {
-    res.json({
-      error: true,
-      message:"server error"
-    })
+    console.error("Login error:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
   }
-}
+};
+
+
 
 export const logoutUser = async (req,res) => {
   try {
@@ -122,34 +141,41 @@ export const logoutUser = async (req,res) => {
 
 export const updateProfile = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { fullName, email, password, profilePic, bio, username } = req.body;
+    console.log("🟢 Request received for profile update");
 
+    const userId = req.user.id;
+    console.log("🔹 User ID:", userId);
+
+    console.log("🖼️ Uploaded File:", req.file); // Log the uploaded file
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file uploaded!" });
+    }
+
+    // Upload to Cloudinary
+    const avatar = await uploadOnCloudinary(req.file.path);
+    console.log("☁️ Cloudinary Upload Response:", avatar);
+
+    if (!avatar) {
+      return res.status(500).json({ message: "Failed to upload to Cloudinary" });
+    }
+
+    // Update user profile
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (username) user.username = username;
-    if (email) user.email = email;
-    if (fullName) user.fullName = fullName;
-    if (bio) user.bio = bio;
-    if (profilePic) user.profilePic = profilePic;
-    
-  
-    if (password) {
-      const salt = await bcrypt.genSalt(10);
-      user.password = await bcrypt.hash(password, salt);
-    }
-
-    
+    user.profilePic = avatar.secure_url;
     await user.save();
 
     res.status(200).json({ message: "Profile updated successfully", user });
   } catch (error) {
+    console.error("❌ Error updating profile:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
 
 export const followUnfollowUser = async (req, res) => {
   try {

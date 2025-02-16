@@ -6,11 +6,29 @@ import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import TrendingSection from "@/components/TrendingSection";
 import { Input } from "@/components/ui/input";
+import axiosInstance from "@/utils/axiosInstance";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("Tweets");
   const tabs = ["Tweets", "Replies", "Likes"];
+  const [profilePic, setProfilePic] = useState('')
+  const [username, setUsername] = useState('')
+  const [bio, setBio] = useState('')
+  const [followers, setFollowers] = useState(0)
+  const [following, setFollowing] = useState(0)
+  const [fullName, setFullName] = useState('')
+  const [tweets, setTweets] = useState([])
+  const [replies, setReplies] = useState([])
+  const [likes, setLikes] = useState([])
 
+  const userProfile = async () => {
+    const response = axiosInstance.get('/user/profile')
+    console.log(response.data)
+    if (response.status === 200 && response.data?.token) {
+      
+    }
+    
+  }
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto">

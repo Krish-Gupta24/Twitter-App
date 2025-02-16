@@ -14,7 +14,10 @@ app.listen(PORT, () => {
     console.log(`App is listening on ${PORT}`)
     dbConnection()
 })
-app.use(cors())
+app.use(cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true
+}))
 app.use(cookieParser())
 app.use(express.json())
 

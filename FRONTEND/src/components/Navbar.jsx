@@ -1,11 +1,27 @@
 import React from 'react';
-import { Home, Search, Mail, User, Twitter } from 'lucide-react';
+import { Home, Search, Mail, User,LogOut } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
+import axiosInstance from '@/utils/axiosInstance';
 
 const Navbar = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    
+    const logouts = async () => {
+        try {
+            const response = await axiosInstance.post('/user/logout')
+            console.log(response)
+            if (response.status===200 ) {
+                localStorage.removeItem("token")
+                navigate('/login')
+            }
+        } catch (error) {
+            console.error("Logout failed:", error);
+        }
+    }
     const menuItems = [
         { icon: <Home size={24} />, text: 'Home', path: '/home' },
         { icon: <Search size={24} />, text: 'Explore', path: '/search' },
@@ -14,27 +30,40 @@ const Navbar = () => {
     ];
 
     return (
-        <div className="fixed h-screen w-64 border-r border-border p-4">
-            <div className="mb-4">
-                <Twitter className="h-8 w-8 text-primary" />
-            </div>
-            <nav className="space-y-1">
-                {menuItems.map((item, index) => (
-                    <Button
-                        key={index}
-                        variant={location.pathname === item.path ? "default" : "ghost"}
-                        className={`w-full justify-start space-x-4 px-3 ${location.pathname === item.path }`}
-                        onClick={() => navigate(item.path)}
-                    >
-                        {item.icon}
-                        <span className="text-xl">{item.text}</span>
-                    </Button>
-                ))}
-            </nav>
-            <Button className="w-full mt-4" size="lg">
-                Tweet
-            </Button>
+      <div className="fixed h-screen w-64 border-r border-border p-4">
+        <div className="mb-4">
+          <FontAwesomeIcon icon={faXTwitter} size='2x' />
         </div>
+        <nav className="space-y-1">
+          {menuItems.map((item, index) => (
+            <Button
+              key={index}
+              variant={location.pathname === item.path ? "default" : "ghost"}
+              className={`w-full justify-start space-x-4 px-3 ${
+                location.pathname === item.path
+              }`}
+              onClick={() => navigate(item.path)}
+            >
+              {item.icon}
+              <span className="text-xl">{item.text}</span>
+            </Button>
+          ))}
+
+          <Button
+            className="w-full justify-start space-x-4 px-3"
+            variant="ghost"
+            onClick={(e) => {
+              logouts();
+            }}
+          >
+            <LogOut size={24} />
+            <span className="text-xl">Logout</span>
+          </Button>
+        </nav>
+        <Button className="w-full mt-4" size="lg">
+          Tweet
+        </Button>
+      </div>
     );
 }
 
