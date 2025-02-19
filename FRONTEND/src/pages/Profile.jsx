@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -21,14 +21,28 @@ const Profile = () => {
   const [replies, setReplies] = useState([])
   const [likes, setLikes] = useState([])
 
+  useEffect(() => {
+    userProfile();
+  }, []);
+  
   const userProfile = async () => {
-    const response = axiosInstance.get('/user/profile')
-    console.log(response.data)
-    if (response.status === 200 && response.data?.token) {
-      
+    try {
+      const response = await axiosInstance.get("/user/profile");
+      if (response.status === 200) {
+        const { username, fullName, bio, followers, following, profilePic } = response.data.user;
+        setUsername(username);
+        setFullName(fullName);
+        setBio(bio);
+        setFollowers(followers.length);
+        setFollowing(following.length);
+        setProfilePic(profilePic || "https://via.placeholder.com/150");
+      }
+      console.log(response)
+    } catch (error) {
+      console.error("Error fetching user profile", error);
     }
-    
-  }
+  };
+  
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto">
@@ -39,25 +53,25 @@ const Profile = () => {
               <div className="flex items-center space-x-6">
                 <Avatar className="h-32 w-32 border-4 border-gray-700 shadow-xl">
                   <AvatarImage
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+                    src={profilePic}
                     alt="Profile"
                   />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div>
                   <h2 className="text-4xl font-extrabold text-white">
-                    John Doe
+                    {fullName}
                   </h2>
-                  <p className="text-gray-400 text-lg">@johndoe</p>
+                  <p className="text-gray-400 text-lg">@{ username}</p>
                   <p className="mt-3 text-gray-300 italic">
-                    Web developer | Tech Enthusiast | Passionate about React
+                    {bio}
                   </p>
                   <div className="mt-5 flex space-x-8 text-gray-300 font-semibold">
                     <span>
-                      <strong>150</strong> Following
+                      <strong>{ following }</strong> Following
                     </span>
                     <span>
-                      <strong>2.3K</strong> Followers
+                      <strong>{followers }</strong> Followers
                     </span>
                   </div>
                 </div>
