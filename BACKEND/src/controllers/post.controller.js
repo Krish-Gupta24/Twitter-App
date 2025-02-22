@@ -233,3 +233,36 @@ export const getFeed = async (req, res) => {
       .json({ success: false, message: "Internal Server error" });
   }
 };
+
+export const getLikedPosts = async (req, res) => {
+  const userId = req.params.userId
+  console.log(userId)
+  try {
+    const user = await User.findById(userId)
+    if (!user) {
+      return res.status(404).json({
+        message: "user not found",
+        error: true,
+      })
+    }
+
+    const likedPosts = await Posts.find({ _id: { $in: user.likedPosts } })
+      .populate({
+        path: 'user',
+        select: '-password'
+      })
+      .populate({
+        path: "replies.userId",
+        select:"-password"
+      })
+    return res.status(200).json({
+      error: false,
+      message: "Posts fetched",
+      likedPosts
+     })
+    
+  } catch (error) {
+    console.log("Error in getLikedPosts controller: ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}

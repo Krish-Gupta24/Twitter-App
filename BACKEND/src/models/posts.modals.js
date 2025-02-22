@@ -5,7 +5,7 @@ const postSchema = new mongoose.Schema(
     userId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required:true
+      required: true,
     },
     image: {
       type: String,
@@ -24,28 +24,29 @@ const postSchema = new mongoose.Schema(
     shared: {
       type: Number,
       required: true,
+      default: 0, 
     },
     replies: [
       {
         userId: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "User",
-          required:true
+          required: true,
         },
         text: {
           type: String,
-          required:true
+          required: true,
         },
         createdAt: {
           type: Date,
-          default: Date.now
+          default: Date.now,
         },
         userPic: {
-          type:String,
+          type: String,
         },
         username: {
-          type:String
-        }
+          type: String,
+        },
       },
     ],
   },
