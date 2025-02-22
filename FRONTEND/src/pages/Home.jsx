@@ -66,26 +66,7 @@ function TrendingSection() {
 }
 
 function App() {
-  const tweets = [
-    {
-      name: 'John Doe',
-      handle: 'johndoe',
-      content: 'Just deployed my first React application! 🚀 #webdev #react',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Jane Smith',
-      handle: 'janesmith',
-      content: 'Beautiful day for coding! ☀️ Working on some exciting new features.',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    },
-    {
-      name: 'Tech Enthusiast',
-      handle: 'techlover',
-      content: 'The future of web development is here! Check out these amazing new tools and frameworks.',
-      avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80'
-    }
-  ];
+  
 
   return (
     <div className="min-h-screen bg-background">
