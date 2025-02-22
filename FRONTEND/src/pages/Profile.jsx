@@ -6,42 +6,30 @@ import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import TrendingSection from "@/components/TrendingSection";
 import { Input } from "@/components/ui/input";
-import axiosInstance from "@/utils/axiosInstance";
+import useUserStore from "@/store/userStore";
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("Tweets");
   const tabs = ["Tweets", "Replies", "Likes"];
-  const [profilePic, setProfilePic] = useState('')
-  const [username, setUsername] = useState('')
-  const [bio, setBio] = useState('')
-  const [followers, setFollowers] = useState(0)
-  const [following, setFollowing] = useState(0)
-  const [fullName, setFullName] = useState('')
-  const [tweets, setTweets] = useState([])
-  const [replies, setReplies] = useState([])
-  const [likes, setLikes] = useState([])
+
+  const {
+    user,
+    username,
+    fullName,
+    bio,
+    profilePic,
+    followers,
+    following,
+    tweets,
+    replies,
+    likes,
+    fetchUserProfile,
+  } = useUserStore();
 
   useEffect(() => {
-    userProfile();
+    fetchUserProfile();
   }, []);
   
-  const userProfile = async () => {
-    try {
-      const response = await axiosInstance.get("/user/profile");
-      if (response.status === 200) {
-        const { username, fullName, bio, followers, following, profilePic } = response.data.user;
-        setUsername(username);
-        setFullName(fullName);
-        setBio(bio);
-        setFollowers(followers.length);
-        setFollowing(following.length);
-        setProfilePic(profilePic || "https://via.placeholder.com/150");
-      }
-      console.log(response)
-    } catch (error) {
-      console.error("Error fetching user profile", error);
-    }
-  };
   
   return (
     <div className="min-h-screen bg-background">
@@ -52,26 +40,21 @@ const Profile = () => {
             <Card className="p-8 bg-background shadow-2xl rounded-3xl border border-gray-700">
               <div className="flex items-center space-x-6">
                 <Avatar className="h-32 w-32 border-4 border-gray-700 shadow-xl">
-                  <AvatarImage
-                    src={profilePic}
-                    alt="Profile"
-                  />
+                  <AvatarImage src={user.profilePic} alt="Profile" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div>
                   <h2 className="text-4xl font-extrabold text-white">
-                    {fullName}
+                    {user.fullName}
                   </h2>
-                  <p className="text-gray-400 text-lg">@{ username}</p>
-                  <p className="mt-3 text-gray-300 italic">
-                    {bio}
-                  </p>
+                  <p className="text-gray-400 text-lg">@{user.username}</p>
+                  <p className="mt-3 text-gray-300 italic">{user.bio}</p>
                   <div className="mt-5 flex space-x-8 text-gray-300 font-semibold">
                     <span>
-                      <strong>{ following }</strong> Following
+                      <strong>{user.following || 0}</strong> Following
                     </span>
                     <span>
-                      <strong>{followers }</strong> Followers
+                      <strong>{user.followers || 0}</strong> Followers
                     </span>
                   </div>
                 </div>
@@ -99,28 +82,19 @@ const Profile = () => {
               {activeTab === "Tweets" && (
                 <div className="space-y-6">
                   <div className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    <p className="text-lg font-medium text-gray-200">
-                      🚀 Excited to share my new React project! #WebDevelopment
-                    </p>
-                    <span className="text-sm text-gray-400">
-                      200 Likes - 50 Retweets
-                    </span>
-                  </div>
-                  <div className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    <p className="text-lg font-medium text-gray-200">
-                      🔥 Exploring Tailwind CSS and loving it!
-                    </p>
-                    <span className="text-sm text-gray-400">
-                      150 Likes - 30 Retweets
-                    </span>
-                  </div>
-                  <div className="hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    <p className="text-lg font-medium text-gray-200">
-                      🏆 Just deployed my first full-stack application!
-                    </p>
-                    <span className="text-sm text-gray-400">
-                      300 Likes - 100 Retweets
-                    </span>
+                    {tweets.map((tweet, index) => (
+                      <div
+                        key={index}
+                        className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md"
+                      >
+                        <p className="text-lg font-medium text-gray-200">
+                          {tweets.content}
+                        </p>
+                        <span className="text-sm text-gray-400">
+                          Posted by @{user.username}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
