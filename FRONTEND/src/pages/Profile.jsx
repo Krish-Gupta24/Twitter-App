@@ -13,6 +13,7 @@ import { format } from "date-fns";
 
 const Profile = () => {
   const { userId } = useParams();
+  console.log(userId)
   const [activeTab, setActiveTab] = useState("Tweets");
   const tabs = ["Tweets", "Replies", "Likes"];
   const [tweets, setTweets] = useState([]);

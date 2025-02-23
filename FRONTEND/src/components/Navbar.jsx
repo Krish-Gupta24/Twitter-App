@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Search, Mail, User,LogOut } from 'lucide-react';
+import { Home, Search, Mail, User,LogOut,BellIcon} from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -29,7 +29,8 @@ const Navbar = () => {
         { icon: <Home size={24} />, text: 'Home', path: '/home' },
         { icon: <Search size={24} />, text: 'Explore', path: '/search' },
         { icon: <Mail size={24} />, text: 'Messages', path: '/message' },
-        { icon: <User size={24} />, text: 'Profile', path: `/user/${user._id}` },
+        { icon: <User size={24} />, text: 'Profile', path: `/user/${user.username}` },
+        { icon: <BellIcon size={24} />, text: 'Notification', path: `/notification` },
     ];
 
     return (
@@ -63,9 +64,6 @@ const Navbar = () => {
             <span className="text-xl">Logout</span>
           </Button>
         </nav>
-        <Button className="w-full mt-4" size="lg">
-          Tweet
-        </Button>
       </div>
     );
 }

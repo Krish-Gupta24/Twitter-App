@@ -2,54 +2,80 @@ import React, { useEffect, useState } from "react";
 import { Search, MessageCircle, Repeat2, Heart, Share } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ToastContainer, toast } from "react-toastify";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import TrendingSection from "@/components/TrendingSection";
 import useUserStore from "@/store/userStore";
+import axiosInstance from "@/utils/axiosInstance";
 
-const Tweet = ({ name, handle, content, avatar }) => (
-  <Card className="border-b rounded-none p-4 hover:bg-accent/50">
-    <div className="flex space-x-3">
-      <Avatar className="h-12 w-12">
-        <AvatarImage src={avatar} alt={name} />
-        <AvatarFallback>{name[0]}</AvatarFallback>
-      </Avatar>
-      <div className="flex-1">
-        <div className="flex items-center space-x-2">
-          <span className="font-bold">{name}</span>
-          <span className="text-muted-foreground">@{handle}</span>
-        </div>
-        <p className="mt-1">{content}</p>
-        <div className="flex justify-between mt-3 text-muted-foreground w-4/5">
-          <Button variant="ghost" size="sm" className="space-x-2">
-            <MessageCircle size={18} />
-            <span>24</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="space-x-2">
-            <Repeat2 size={18} />
-            <span>12</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="space-x-2">
-            <Heart size={18} />
-            <span>348</span>
-          </Button>
-          <Button variant="ghost" size="sm" className="space-x-2">
-            <Share size={18} />
-          </Button>
+const Tweet = ({image,content,replies,shared,likeCount}) => {
+  const { user, fetchUserProfile } = useUserStore();
+  useEffect(() => {
+    fetchUserProfile();
+  }, []);
+  return (
+    <Card className="border-b rounded-none p-4 hover:bg-accent/50">
+      <div className="flex space-x-3">
+        <Avatar className="h-12 w-12">
+          <AvatarImage src={user.profilePic} alt="hello" />
+          <AvatarFallback>U</AvatarFallback>
+        </Avatar>
+        <div className="flex-1">
+          <div className="flex items-center space-x-2">
+            <span className="font-bold">{user.fullName}</span>
+            <span className="text-muted-foreground">@{user.username}</span>
+          </div>
+          <p className="mt-1">{content}</p>
+          <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
+            <button className="flex items-center space-x-1 hover:text-blue-500 transition">
+              <MessageCircle size={18} />
+              <span>{replies || 0}</span>
+            </button>
+            
+            <button className="flex items-center space-x-1 hover:text-green-500 transition">
+              <Repeat2 size={18} />
+              <span>{shared || 0}</span>
+            </button>
+            
+            <button className="flex items-center space-x-1 hover:text-red-500 transition">
+              <Heart size={18} />
+              <span>{likeCount || 0}</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  </Card>
-);
+    </Card>
+  );
+};
 
 const Home = () => {
   const { user, fetchUserProfile, tweet } = useUserStore();
   const [content, setContent] = useState("");
+  const [tweets, setTweets] = useState([])
+  const feed = async () => {
+    try {
+      const response = await axiosInstance.get('/post/feed')
+      setTweets(response.data.feedPosts)
+    } catch (error) {
+      toast.error("Feed Fetching Failed !", {
+        position: "top-right",
+        autoClose: 2000, 
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark", 
+      });
+    }
+  }
 
   useEffect(() => {
     fetchUserProfile();
+    feed()
   }, []);
 
   return (
@@ -59,7 +85,7 @@ const Home = () => {
           <Navbar />
 
           <main className="flex-1 ml-64 border-r border-border min-h-screen">
-            <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border p-4">
+            <div className="sticky top-0 bg-background/80 backdrop-blur-sm border-b border-border p-4 z-10">
               <h1 className="text-xl font-bold">Home</h1>
             </div>
 
@@ -86,8 +112,19 @@ const Home = () => {
                     <Button
                       size="sm"
                       onClick={() => {
+                        if (!content.trim()) return;
                         tweet(content);
                         setContent("");
+                        toast.success("Tweet Uploaded!", {
+                          position: "top-right",
+                          autoClose: 2000, // Toast disappears after 2 seconds
+                          hideProgressBar: false,
+                          closeOnClick: true,
+                          pauseOnHover: true,
+                          draggable: true,
+                          progress: undefined,
+                          theme: "dark", // Dark mode styling
+                        });
                       }}
                     >
                       Tweet
@@ -99,9 +136,23 @@ const Home = () => {
 
             {/* Render tweets from userStore */}
             <div>
-              {user?.tweets?.map((tweet, index) => (
-                <Tweet key={index} {...tweet} />
-              ))}
+              {tweets.length > 0 ? (
+                tweets.map((item, index) => (
+                  <Tweet
+                    key={index}
+                    image={item.image}
+                    content={item.content}
+                    likeCount={item.likeCount}
+                    replies={item.replies}
+                    shared={item.shared}
+                    avatar={item.userId.profilePic}
+                  />
+                ))
+              ) : (
+                <p className="text-center text-muted-foreground mt-4">
+                  No tweets yet. Be the first to tweet!
+                </p>
+              )}
             </div>
           </main>
 
@@ -122,6 +173,7 @@ const Home = () => {
           </aside>
         </div>
       </div>
+      <ToastContainer />
     </div>
   );
 };
