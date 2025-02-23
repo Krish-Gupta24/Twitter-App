@@ -7,6 +7,11 @@ const postSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    username: {
+      type: String,
+      ref: "User",
+      required:true,
+    },
     image: {
       type: String,
       default: "",
@@ -24,7 +29,7 @@ const postSchema = new mongoose.Schema(
     shared: {
       type: Number,
       required: true,
-      default: 0, 
+      default: 0,
     },
     replies: [
       {

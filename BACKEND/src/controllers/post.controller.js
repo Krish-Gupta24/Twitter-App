@@ -3,6 +3,7 @@ import User from "../models/user.models.js";
 
 export const addPost = async (req, res) => {
   const userId = req.user.id;
+
   const {
     content,
     image = "",
@@ -25,8 +26,14 @@ export const addPost = async (req, res) => {
   }
 
   try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    const newPost =new Posts({
+    // ✅ Create new post with username as a string
+    const newPost = new Posts({
+      username: user.username, 
       userId,
       content,
       image,
@@ -35,17 +42,20 @@ export const addPost = async (req, res) => {
       replies,
     });
 
-    await newPost.save()
+    await newPost.save();
 
-    return res.status(200).json({
+    return res.status(201).json({
+      // ✅ 201 Created
       success: true,
       message: "Post was created",
+      post: newPost, // Optionally return the created post
     });
   } catch (error) {
     console.error("Error creating post:", error.message);
-    return res.status(500).json({ message: "Internal Server Error", error: error.message });
-}
-
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error", error: error.message });
+  }
 };
 
 export const updatePost = async (req, res) => {
@@ -107,7 +117,7 @@ export const deletePost = async (req, res) => {
 }
 
 export const userPosts = async (req,res)=>{
-  const username = req.params.id;
+  const username = req.params.username;
   try {
     const posts = await Posts.find({ username:username });
     return res.status(200).json({error:false,posts});
@@ -234,10 +244,10 @@ export const getFeed = async (req, res) => {
 
 
 export const getLikedPosts = async (req, res) => {
-  const userId = req.params.userId
-  console.log(userId)
+  const username = req.params.username
+  console.log(username)
   try {
-    const user = await User.findById(userId)
+    const user = await User.findOne({username:username})
     if (!user) {
       return res.status(404).json({
         message: "user not found",

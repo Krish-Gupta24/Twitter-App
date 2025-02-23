@@ -32,17 +32,17 @@ const Tweet = ({image,content,replies,shared,likeCount}) => {
           <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
             <button className="flex items-center space-x-1 hover:text-blue-500 transition">
               <MessageCircle size={18} />
-              <span>{replies || 0}</span>
+              <span>{replies.length ?? 0}</span>
             </button>
-            
+
             <button className="flex items-center space-x-1 hover:text-green-500 transition">
               <Repeat2 size={18} />
-              <span>{shared || 0}</span>
+              <span>{shared ?? 0}</span>
             </button>
-            
+
             <button className="flex items-center space-x-1 hover:text-red-500 transition">
               <Heart size={18} />
-              <span>{likeCount || 0}</span>
+              <span>{likeCount.length ?? 0}</span>
             </button>
           </div>
         </div>
