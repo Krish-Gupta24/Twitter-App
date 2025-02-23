@@ -46,7 +46,7 @@
             }
           />
           <Route
-            path="/user"
+            path="/user/:userId"
             element={
               <ProtectedRoute>
                 <Profile />

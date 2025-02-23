@@ -5,8 +5,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faXTwitter } from "@fortawesome/free-brands-svg-icons";
 import axiosInstance from '@/utils/axiosInstance';
+import useUserStore from '@/store/userStore';
+
 
 const Navbar = () => {
+  const { user } = useUserStore()
     const navigate = useNavigate();
     const location = useLocation();
     
@@ -26,7 +29,7 @@ const Navbar = () => {
         { icon: <Home size={24} />, text: 'Home', path: '/home' },
         { icon: <Search size={24} />, text: 'Explore', path: '/search' },
         { icon: <Mail size={24} />, text: 'Messages', path: '/message' },
-        { icon: <User size={24} />, text: 'Profile', path: '/user' },
+        { icon: <User size={24} />, text: 'Profile', path: `/user/${user._id}` },
     ];
 
     return (

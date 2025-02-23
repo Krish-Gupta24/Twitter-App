@@ -1,5 +1,5 @@
-import React, { useState,useEffect } from "react";
-import { Search } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Search, Heart, MessageCircle, Repeat2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card } from "@/components/ui/card";
@@ -7,30 +7,44 @@ import Navbar from "@/components/Navbar";
 import TrendingSection from "@/components/TrendingSection";
 import { Input } from "@/components/ui/input";
 import useUserStore from "@/store/userStore";
+import axiosInstance from "@/utils/axiosInstance";
+import { useParams } from "react-router-dom";
+import { format } from "date-fns";
 
 const Profile = () => {
+  const { userId } = useParams();
   const [activeTab, setActiveTab] = useState("Tweets");
   const tabs = ["Tweets", "Replies", "Likes"];
+  const [tweets, setTweets] = useState([]);
 
-  const {
-    user,
-    username,
-    fullName,
-    bio,
-    profilePic,
-    followers,
-    following,
-    tweets,
-    replies,
-    likes,
-    fetchUserProfile,
-  } = useUserStore();
+  const { user, fetchUserProfile } = useUserStore();
+
+  const userTweets = async () => {
+    if (!userId) {
+      console.log("User ID is undefined in params");
+      return;
+    }
+    try {
+      const response = await axiosInstance.get(`/post/allpost/${userId}`);
+      if (response.data && response.data.posts) {
+        setTweets(response.data.posts);
+      }
+    } catch (error) {
+      console.error(
+        "Error fetching posts:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
 
   useEffect(() => {
     fetchUserProfile();
-  }, []);
-  
-  
+  }, [userId]);
+
+  useEffect(() => {
+    userTweets();
+  }, [userId]);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto">
@@ -81,57 +95,190 @@ const Profile = () => {
 
               {activeTab === "Tweets" && (
                 <div className="space-y-6">
-                  <div className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    {tweets.map((tweet, index) => (
+                  {tweets.length > 0 ? (
+                    tweets.map((tweet, index) => (
                       <div
                         key={index}
-                        className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md"
+                        className="border-b border-gray-700 pb-4 hover:bg-gray-800 px-5 py-4 rounded-lg transition"
                       >
-                        <p className="text-lg font-medium text-gray-200">
-                          {tweets.content}
+                        <div className="flex items-center space-x-3 text-gray-400 text-sm">
+                          <div className="w-10 h-10 bg-gray-600 rounded-full">
+                            <Avatar>
+                              <AvatarImage
+                                src={user.profilePic}
+                                alt="Profile"
+                              />
+                              <AvatarFallback>U</AvatarFallback>
+                            </Avatar>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-white font-semibold">
+                              {user.fullName}
+                            </span>
+                            <span className="text-gray-500">
+                              @{user.username}
+                            </span>
+                            <span className="text-gray-500">·</span>
+                            <span className="text-gray-500">
+                              {format(new Date(tweet.createdAt), "MMM d, yyyy")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-gray-200 text-base mt-2">
+                          {tweet.content}
                         </p>
-                        <span className="text-sm text-gray-400">
-                          Posted by @{user.username}
-                        </span>
+
+                        <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
+                          <button className="flex items-center space-x-1 hover:text-blue-500 transition">
+                            <MessageCircle size={18} />
+                            <span>{tweet.comment || 0}</span>
+                          </button>
+
+                          <button className="flex items-center space-x-1 hover:text-green-500 transition">
+                            <Repeat2 size={18} />
+                            <span>{tweet.share || 0}</span>
+                          </button>
+
+                          <button className="flex items-center space-x-1 hover:text-red-500 transition">
+                            <Heart size={18} />
+                            <span>{tweet.like || 0}</span>
+                          </button>
+                        </div>
                       </div>
-                    ))}
-                  </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-400">
+                      No tweets available
+                    </p>
+                  )}
                 </div>
               )}
+
               {activeTab === "Replies" && (
                 <div className="space-y-6">
-                  <div className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    <p className="text-lg font-medium text-gray-200">
-                      Replying to @techguru: "Great article on React 18! Learned
-                      a lot. 🙌"
+                  {tweets.length > 0 ? (
+                    tweets.map((tweet, index) => (
+                      <div
+                        key={index}
+                        className="border-b border-gray-700 pb-4 hover:bg-gray-800 px-5 py-4 rounded-lg transition"
+                      >
+                        <div className="flex items-center space-x-3 text-gray-400 text-sm">
+                          <div className="w-10 h-10 bg-gray-600 rounded-full">
+                            <Avatar>
+                              <AvatarImage
+                                src={user.profilePic}
+                                alt="Profile"
+                              />
+                              <AvatarFallback>U</AvatarFallback>
+                            </Avatar>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-white font-semibold">
+                              {user.fullName}
+                            </span>
+                            <span className="text-gray-500">
+                              @{user.username}
+                            </span>
+                            <span className="text-gray-500">·</span>
+                            <span className="text-gray-500">
+                              {format(new Date(tweet.createdAt), "MMM d, yyyy")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-gray-200 text-base mt-2">
+                          {tweet.content}
+                        </p>
+
+                        <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
+                          <button className="flex items-center space-x-1 hover:text-blue-500 transition">
+                            <MessageCircle size={18} />
+                            <span>{tweet.comment || 0}</span>
+                          </button>
+
+                          <button className="flex items-center space-x-1 hover:text-green-500 transition">
+                            <Repeat2 size={18} />
+                            <span>{tweet.share || 0}</span>
+                          </button>
+
+                          <button className="flex items-center space-x-1 hover:text-red-500 transition">
+                            <Heart size={18} />
+                            <span>{tweet.like || 0}</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-400">
+                      No tweets available
                     </p>
-                    <span className="text-sm text-gray-400">45 Likes</span>
-                  </div>
-                  <div className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    <p className="text-lg font-medium text-gray-200">
-                      Replying to @webdev: "Thanks for the tip on Tailwind
-                      spacing! 🔥"
-                    </p>
-                    <span className="text-sm text-gray-400">30 Likes</span>
-                  </div>
+                  )}
                 </div>
               )}
+
               {activeTab === "Likes" && (
                 <div className="space-y-6">
-                  <div className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    <p className="text-lg font-medium text-gray-200">
-                      Liked: "🚀 Excited for the new React updates! So many
-                      great features."
+                  {tweets.length > 0 ? (
+                    tweets.map((tweet, index) => (
+                      <div
+                        key={index}
+                        className="border-b border-gray-700 pb-4 hover:bg-gray-800 px-5 py-4 rounded-lg transition"
+                      >
+                        <div className="flex items-center space-x-3 text-gray-400 text-sm">
+                          <div className="w-10 h-10 bg-gray-600 rounded-full">
+                            <Avatar>
+                              <AvatarImage
+                                src={user.profilePic}
+                                alt="Profile"
+                              />
+                              <AvatarFallback>U</AvatarFallback>
+                            </Avatar>
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <span className="text-white font-semibold">
+                              {user.fullName}
+                            </span>
+                            <span className="text-gray-500">
+                              @{user.username}
+                            </span>
+                            <span className="text-gray-500">·</span>
+                            <span className="text-gray-500">
+                              {format(new Date(tweet.createdAt), "MMM d, yyyy")}
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className="text-gray-200 text-base mt-2">
+                          {tweet.content}
+                        </p>
+
+                        <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
+                          <button className="flex items-center space-x-1 hover:text-blue-500 transition">
+                            <MessageCircle size={18} />
+                            <span>{tweet.comment || 0}</span>
+                          </button>
+
+                          <button className="flex items-center space-x-1 hover:text-green-500 transition">
+                            <Repeat2 size={18} />
+                            <span>{tweet.share || 0}</span>
+                          </button>
+
+                          <button className="flex items-center space-x-1 hover:text-red-500 transition">
+                            <Heart size={18} />
+                            <span>{tweet.like || 0}</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-gray-400">
+                      No tweets available
                     </p>
-                    <span className="text-sm text-gray-400">1.2K Likes</span>
-                  </div>
-                  <div className="border-b border-gray-700 pb-4 hover:bg-gray-700 p-5 rounded-lg transition shadow-md">
-                    <p className="text-lg font-medium text-gray-200">
-                      Liked: "AI is revolutionizing web development! Can't wait
-                      to see what's next. 🤖"
-                    </p>
-                    <span className="text-sm text-gray-400">850 Likes</span>
-                  </div>
+                  )}
                 </div>
               )}
             </Card>

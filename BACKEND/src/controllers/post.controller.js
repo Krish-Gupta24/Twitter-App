@@ -211,28 +211,27 @@ export const getFeed = async (req, res) => {
       return res.status(400).json({ success: false, message: "No user found" });
     }
 
-    const followings = user.followings;
+    let feedPosts;
 
-    const feedPosts = await Posts.find({ userId: { $in: followings } }).sort({
-      createdAt: -1,
-    });
-
-    if (!followings) {
-      return res
-        .status(400)
-        .json({ success: true, message: "Follow people to get feed" });
+    if (user.followings.length > 0) {
+      feedPosts = await Posts.find({ userId: { $in: user.followings } }).sort({
+        createdAt: -1,
+      });
+    } else {
+      feedPosts = await Posts.find({ userId }).sort({ createdAt: -1 });
     }
 
-    res
+    return res
       .status(200)
       .json({ success: true, message: "Feed is fetched", feedPosts });
   } catch (error) {
-    console.log("Error in getFeed :: post controller ::", error);
+    console.error("Error in getFeed :: post controller ::", error);
     return res
       .status(500)
-      .json({ success: false, message: "Internal Server error" });
+      .json({ success: false, message: "Internal Server Error" });
   }
 };
+
 
 export const getLikedPosts = async (req, res) => {
   const userId = req.params.userId

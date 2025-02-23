@@ -14,6 +14,7 @@ const useUserStore = create(
           const response = await axiosInstance.get("/user/profile");
           if (response.status === 200) {
             const {
+              _id,
               fullName,
               email,
               username,
@@ -28,6 +29,7 @@ const useUserStore = create(
 
             set({
               user: {
+                _id,
                 fullName,
                 email,
                 username,
