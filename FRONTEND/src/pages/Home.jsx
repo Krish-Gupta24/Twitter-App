@@ -93,10 +93,7 @@ const Home = () => {
               <div className="flex space-x-4">
                 <Avatar className="h-12 w-12">
                   <AvatarImage
-                    src={
-                      user?.profilePic ||
-                      "https://api.dicebear.com/9.x/initials/svg?seed=default"
-                    }
+                    src={user?.profilePic}
                     alt="Your avatar"
                   />
                   <AvatarFallback>You</AvatarFallback>

@@ -12,8 +12,8 @@ import { useParams } from "react-router-dom";
 import { format } from "date-fns";
 
 const Profile = () => {
-  const { userId } = useParams();
-  console.log(userId)
+  const { username } = useParams();
+  console.log(username)
   const [activeTab, setActiveTab] = useState("Tweets");
   const tabs = ["Tweets", "Replies", "Likes"];
   const [tweets, setTweets] = useState([]);
@@ -21,12 +21,12 @@ const Profile = () => {
   const { user, fetchUserProfile } = useUserStore();
 
   const userTweets = async () => {
-    if (!userId) {
+    if (!username) {
       console.log("User ID is undefined in params");
       return;
     }
     try {
-      const response = await axiosInstance.get(`/post/allpost/${userId}`);
+      const response = await axiosInstance.get(`/post/allpost/${username}`);
       if (response.data && response.data.posts) {
         setTweets(response.data.posts);
       }
@@ -40,11 +40,11 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserProfile();
-  }, [userId]);
+  }, [username]);
 
   useEffect(() => {
     userTweets();
-  }, [userId]);
+  }, [username]);
 
   return (
     <div className="min-h-screen bg-background">

@@ -9,6 +9,7 @@
   import Home from "./pages/Home";
   import Profile from "./pages/Profile";
   import SearchPage from "./pages/Search";
+  import Notification from "./pages/Notification";
   import Main from "./pages/Main";
 
   const ProtectedRoute = ({ children }) => {
@@ -46,7 +47,7 @@
             }
           />
           <Route
-            path="/user/:userId"
+            path="/user/:username"
             element={
               <ProtectedRoute>
                 <Profile />
@@ -58,6 +59,22 @@
             element={
               <ProtectedRoute>
                 <Main />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/notification"
+            element={
+              <ProtectedRoute>
+                <Notification />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/message"
+            element={
+              <ProtectedRoute>
+                <Notification />
               </ProtectedRoute>
             }
           />
