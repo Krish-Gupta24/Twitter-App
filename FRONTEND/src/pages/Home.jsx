@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Search, MessageCircle, Repeat2, Heart, Share } from "lucide-react";
+import { Smile, MessageCircle, Repeat2, Heart, ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToastContainer, toast } from "react-toastify";
@@ -11,38 +11,47 @@ import TrendingSection from "@/components/TrendingSection";
 import useUserStore from "@/store/userStore";
 import axiosInstance from "@/utils/axiosInstance";
 
-const Tweet = ({image,content,replies,shared,likeCount}) => {
-  const { user, fetchUserProfile } = useUserStore();
-  useEffect(() => {
-    fetchUserProfile();
-  }, []);
+const Tweet = ({
+  image,
+  content,
+  replies,
+  shared,
+  likeCount,
+  avatar,
+  username,
+  fullName,
+}) => {
+  const { user } = useUserStore();
+
   return (
     <Card className="border-b rounded-none p-4 hover:bg-accent/50">
       <div className="flex space-x-3">
         <Avatar className="h-12 w-12">
-          <AvatarImage src={user.profilePic} alt="hello" />
+          <AvatarImage src={avatar || user?.profilePic} alt="profile" />
           <AvatarFallback>U</AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <div className="flex items-center space-x-2">
-            <span className="font-bold">{user.fullName}</span>
-            <span className="text-muted-foreground">@{user.username}</span>
+            <span className="font-bold">{fullName || user?.fullName}</span>
+            <span className="text-muted-foreground">
+              @{username || user?.username}
+            </span>
           </div>
           <p className="mt-1">{content}</p>
           <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
             <button className="flex items-center space-x-1 hover:text-blue-500 transition">
               <MessageCircle size={18} />
-              <span>{replies.length ?? 0}</span>
+              <span>{replies?.length || 0}</span>
             </button>
 
             <button className="flex items-center space-x-1 hover:text-green-500 transition">
               <Repeat2 size={18} />
-              <span>{shared ?? 0}</span>
+              <span>{shared || 0}</span>
             </button>
 
             <button className="flex items-center space-x-1 hover:text-red-500 transition">
               <Heart size={18} />
-              <span>{likeCount.length ?? 0}</span>
+              <span>{likeCount?.length || 0}</span>
             </button>
           </div>
         </div>
@@ -52,31 +61,64 @@ const Tweet = ({image,content,replies,shared,likeCount}) => {
 };
 
 const Home = () => {
-  const { user, fetchUserProfile, tweet } = useUserStore();
   const [content, setContent] = useState("");
-  const [tweets, setTweets] = useState([])
+  const [tweets, setTweets] = useState([]);
+  const { user, fetchUserProfile, tweet } = useUserStore();
+
   const feed = async () => {
     try {
-      const response = await axiosInstance.get('/post/feed')
-      setTweets(response.data.feedPosts)
+      const response = await axiosInstance.get("/post/feed");
+      setTweets(response.data.feedPosts);
     } catch (error) {
-      toast.error("Feed Fetching Failed !", {
+      toast.error("Feed Fetching Failed!", {
         position: "top-right",
-        autoClose: 2000, 
+        autoClose: 2000,
         hideProgressBar: false,
         closeOnClick: true,
         pauseOnHover: true,
         draggable: true,
         progress: undefined,
-        theme: "dark", 
+        theme: "dark",
       });
     }
-  }
+  };
 
   useEffect(() => {
     fetchUserProfile();
-    feed()
+    feed();
   }, []);
+
+  const handleTweet = async () => {
+    if (!content.trim()) return;
+
+    try {
+      await tweet(content); // Wait for the tweet to be posted
+      setContent(""); // Clear the input
+      await feed(); // Refresh the feed to show the new tweet
+
+      toast.success("Tweet Uploaded!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    } catch (error) {
+      toast.error("Failed to post tweet!", {
+        position: "top-right",
+        autoClose: 2000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,10 +134,7 @@ const Home = () => {
             <div className="border-b border-border p-4">
               <div className="flex space-x-4">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage
-                    src={user?.profilePic}
-                    alt="Your avatar"
-                  />
+                  <AvatarImage src={user?.profilePic} alt="Your avatar" />
                   <AvatarFallback>You</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -105,25 +144,18 @@ const Home = () => {
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                   />
-                  <div className="flex justify-end mt-2">
-                    <Button
-                      size="sm"
-                      onClick={() => {
-                        if (!content.trim()) return;
-                        tweet(content);
-                        setContent("");
-                        toast.success("Tweet Uploaded!", {
-                          position: "top-right",
-                          autoClose: 2000, // Toast disappears after 2 seconds
-                          hideProgressBar: false,
-                          closeOnClick: true,
-                          pauseOnHover: true,
-                          draggable: true,
-                          progress: undefined,
-                          theme: "dark", // Dark mode styling
-                        });
-                      }}
-                    >
+
+                  {/* Emoji and Image Icons Section */}
+                  <div className="flex justify-between items-center mt-2">
+                    <div className="flex space-x-3 text-gray-500">
+                      <button className="hover:text-blue-500 transition cursor-pointer">
+                        <Smile size={20} />
+                      </button>
+                      <button className="hover:text-green-500 transition cursor-pointer">
+                        <ImageIcon size={20} />
+                      </button>
+                    </div>
+                    <Button size="sm" onClick={handleTweet}>
                       Tweet
                     </Button>
                   </div>
@@ -131,18 +163,20 @@ const Home = () => {
               </div>
             </div>
 
-            {/* Render tweets from userStore */}
+            {/* Render tweets from feed */}
             <div>
               {tweets.length > 0 ? (
                 tweets.map((item, index) => (
                   <Tweet
-                    key={index}
+                    key={item._id || index}
                     image={item.image}
                     content={item.content}
-                    likeCount={item.likeCount}
-                    replies={item.replies}
-                    shared={item.shared}
-                    avatar={item.userId.profilePic}
+                    likeCount={item.likeCount || []}
+                    replies={item.replies || []}
+                    shared={item.shared || 0}
+                    avatar={item.userId?.profilePic}
+                    username={item.userId?.username}
+                    fullName={item.userId?.fullName}
                   />
                 ))
               ) : (

@@ -4,10 +4,10 @@ import axiosInstance from "@/utils/axiosInstance";
 
 const useUserStore = create(
   persist(
-    (set) => ({
+    (set, get) => ({
       user: null,
       isLoading: false,
-      tweets: null,
+      tweets: [], // Add a separate tweets state for the feed
       fetchUserProfile: async () => {
         set({ isLoading: true });
         try {
@@ -37,10 +37,8 @@ const useUserStore = create(
                 profilePic:
                   profilePic ||
                   `https://api.dicebear.com/9.x/initials/svg?seed=${username}`,
-                followers: followers.length,
-                default: 0,
-                followings: followings.length,
-                default: 0,
+                followers: followers?.length || 0,
+                followings: followings?.length || 0,
                 tweets: tweets || [],
                 replies: replies || [],
                 likes: likes || [],
@@ -62,11 +60,16 @@ const useUserStore = create(
           });
 
           if (response.status === 200) {
-            const newTweet = response.data.post; // Ensure API returns `post`
+            const newTweet = response.data.post;
 
+            // Update user's tweets
             set((state) => ({
-              tweets: [newTweet, ...(state.tweets || [])], // Append new tweet to existing ones
+              user: {
+                ...state.user,
+                tweets: [newTweet, ...(state.user?.tweets || [])],
+              },
             }));
+
           }
         } catch (error) {
           console.error("Error posting tweet", error);
