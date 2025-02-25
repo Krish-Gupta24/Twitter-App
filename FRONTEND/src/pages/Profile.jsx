@@ -197,17 +197,17 @@ const Profile = () => {
                         <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
                           <button className="flex items-center space-x-1 hover:text-blue-500 transition">
                             <MessageCircle size={18} />
-                            <span>{tweet.comment || 0}</span>
+                            <span>{tweet.replies.length ?? 0} </span>
                           </button>
 
                           <button className="flex items-center space-x-1 hover:text-green-500 transition">
                             <Repeat2 size={18} />
-                            <span>{tweet.share || 0}</span>
+                            <span>{tweet.shared || 0}</span>
                           </button>
 
                           <button className="flex items-center space-x-1 hover:text-red-500 transition">
                             <Heart size={18} />
-                            <span>{tweet.like || 0}</span>
+                            <span>{tweet.likeCount.length ?? 0}</span>
                           </button>
                         </div>
                       </div>
@@ -260,17 +260,17 @@ const Profile = () => {
                         <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
                           <button className="flex items-center space-x-1 hover:text-blue-500 transition">
                             <MessageCircle size={18} />
-                            <span>{tweet.comment || 0}</span>
+                            <span>{tweet.replies.length ?? 0} </span>
                           </button>
 
                           <button className="flex items-center space-x-1 hover:text-green-500 transition">
                             <Repeat2 size={18} />
-                            <span>{tweet.share || 0}</span>
+                            <span>{tweet.shared || 0}</span>
                           </button>
 
                           <button className="flex items-center space-x-1 hover:text-red-500 transition">
                             <Heart size={18} />
-                            <span>{tweet.like || 0}</span>
+                            <span>{tweet.likeCount.length ?? 0}</span>
                           </button>
                         </div>
                       </div>

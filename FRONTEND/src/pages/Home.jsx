@@ -155,16 +155,6 @@ const Home = () => {
 
           <aside className="w-80 p-4">
             <div className="sticky top-2">
-              <div className="relative mb-4">
-                <Search
-                  className="absolute left-3 top-2.5 text-muted-foreground"
-                  size={18}
-                />
-                <Input
-                  placeholder="Search Twitter"
-                  className="pl-10 bg-muted"
-                />
-              </div>
               <TrendingSection />
             </div>
           </aside>
