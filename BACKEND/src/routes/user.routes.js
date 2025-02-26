@@ -9,7 +9,6 @@ import {
   getGlobalUser,
   getUser,
   getAllUsers,
-  getGlobalUser,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.js";
 

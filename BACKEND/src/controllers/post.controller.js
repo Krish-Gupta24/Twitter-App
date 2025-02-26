@@ -119,13 +119,9 @@ export const deletePost = async (req, res) => {
 export const userPosts = async (req,res)=>{
   const username = req.params.username;
   try {
-<<<<<<< HEAD
     const posts = await Posts.find({ username: username }).sort({
       createdAt: -1,
     });
-=======
-    const posts = await Posts.find({ username:username }).sort({createdAt:-1});
->>>>>>> 26b2ba02234287ede33c7641d8a0a10caa9db225
     return res.status(200).json({error:false,posts});
   } catch (error) {
     return res.status(500).json({error:true,message:"Internal Server Error"});
