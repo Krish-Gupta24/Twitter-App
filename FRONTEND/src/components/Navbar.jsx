@@ -19,7 +19,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const {  Loggedinuser, logged } = useUserStore();
-  console.log(logged)
 
   useEffect(() => {
     Loggedinuser();

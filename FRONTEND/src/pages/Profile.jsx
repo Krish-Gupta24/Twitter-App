@@ -22,7 +22,7 @@ const Profile = () => {
 
   useEffect(() => {
     fetchUserProfile(username);
-  }, []);
+  }, [username]);
 
   const userTweets = async () => {
     if (!username) {
@@ -69,7 +69,7 @@ const Profile = () => {
                   <p className="mt-3 text-gray-300 italic">{user?.bio}</p>
                   <div className="mt-5 flex space-x-8 text-gray-300 font-semibold">
                     <span>
-                      <strong>{user?.following || 0}</strong> Following
+                      <strong>{user.followings || 0}</strong> Following
                     </span>
                     <span>
                       <strong>{user?.followers || 0}</strong> Followers

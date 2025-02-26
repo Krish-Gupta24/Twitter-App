@@ -10,7 +10,7 @@
   import Profile from "./pages/Profile";
   import SearchPage from "./pages/Search";
   import Notification from "./pages/Notification";
-  import Main from "./pages/Main";
+
 
   const ProtectedRoute = ({ children }) => {
     const isAuthenticated = localStorage.getItem("token") !== null;
@@ -54,14 +54,14 @@
               </ProtectedRoute>
             }
           />
-          <Route
+          {/* <Route
             path="/main"
             element={
               <ProtectedRoute>
                 <Main />
               </ProtectedRoute>
             }
-          />
+          /> */}
           <Route
             path="/notification"
             element={
