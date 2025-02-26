@@ -16,7 +16,11 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Navbar = () => {
+<<<<<<< HEAD
   const { user, logged } = useUserStore();
+=======
+  const { user,logged } = useUserStore();
+>>>>>>> 26b2ba02234287ede33c7641d8a0a10caa9db225
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -71,9 +75,13 @@ const Navbar = () => {
               </Avatar>
               <div className="hidden lg:block text-left">
                 <p className="text-sm font-medium">{logged.fullName}</p>
+<<<<<<< HEAD
                 <p className="text-xs text-muted-foreground">
                   @{logged.username}
                 </p>
+=======
+                <p className="text-xs text-muted-foreground">@{logged.username}</p>
+>>>>>>> 26b2ba02234287ede33c7641d8a0a10caa9db225
               </div>
             </Button>
           </DropdownMenuTrigger>

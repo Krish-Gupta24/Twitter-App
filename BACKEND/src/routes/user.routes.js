@@ -9,6 +9,7 @@ import {
   getGlobalUser,
   getUser,
   getAllUsers,
+  getGlobalUser,
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.js";
 
@@ -27,7 +28,6 @@ userRouter.route("/update").patch(
 );
 
 userRouter.route("/follow/:id").patch(verifyJWT, followUnfollowUser);
-userRouter.route("/profile").get(verifyJWT, getUser);
 userRouter.route("/explore").get(verifyJWT, getAllUsers);
 userRouter.route("/profile").get(verifyJWT, getGlobalUser);
 userRouter.route("/:username").get(verifyJWT, getUser);

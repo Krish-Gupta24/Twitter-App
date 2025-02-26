@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import Navbar from "@/components/Navbar";
 import TrendingSection from "@/components/TrendingSection";
 import useUserStore from "@/store/userStore";
+import EmojiPicker from "emoji-picker-react";
 import axiosInstance from "@/utils/axiosInstance";
 
 const Tweet = ({
@@ -21,20 +22,20 @@ const Tweet = ({
   username,
   fullName,
 }) => {
-  const { user } = useUserStore();
+  const { logged } = useUserStore();
 
   return (
     <Card className="border-b rounded-none p-4 hover:bg-accent/50">
       <div className="flex space-x-3">
         <Avatar className="h-12 w-12">
-          <AvatarImage src={avatar || user?.profilePic} alt="profile" />
+          <AvatarImage src={avatar || logged?.profilePic} alt="profile" />
           <AvatarFallback>U</AvatarFallback>
         </Avatar>
         <div className="flex-1">
           <div className="flex items-center space-x-2">
-            <span className="font-bold">{fullName || user?.fullName}</span>
+            <span className="font-bold">{fullName || logged?.fullName}</span>
             <span className="text-muted-foreground">
-              @{username || user?.username}
+              @{username || logged?.username}
             </span>
           </div>
           <p className="mt-1">{content}</p>
@@ -63,7 +64,8 @@ const Tweet = ({
 const Home = () => {
   const [content, setContent] = useState("");
   const [tweets, setTweets] = useState([]);
-  const { user, fetchUserProfile, tweet } = useUserStore();
+  const { logged, Loggedinuser, tweet } = useUserStore();
+  const [emojiPicker,setEmojiPicker]=useState(false)
 
   const feed = async () => {
     try {

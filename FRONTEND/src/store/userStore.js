@@ -5,10 +5,17 @@ import axiosInstance from "@/utils/axiosInstance";
 const useUserStore = create(
   persist(
     (set, get) => ({
+<<<<<<< HEAD
       logged: null,
       user: null,
       isLoading: false,
       tweets: [],
+=======
+      logged:null,
+      user: null,
+      isLoading: false,
+      tweets: [], 
+>>>>>>> 26b2ba02234287ede33c7641d8a0a10caa9db225
       fetchUserProfile: async (username) => {
         set({ isLoading: true });
         try {
