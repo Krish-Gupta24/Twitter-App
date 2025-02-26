@@ -205,8 +205,10 @@ export const followUnfollowUser = async (req, res) => {
 
 export const getUser = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const user = await User.findById(userId).populate("followers").populate("followings");
+    const { username } = req.params;
+    const user = await User.findOne({ username: username })
+      .populate("followers")
+      .populate("followings");
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -225,3 +227,18 @@ export const getAllUsers = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 }
+
+export const getGlobalUser = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const user = await User.findById(userId)
+      .populate("followers")
+      .populate("followings");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};

@@ -84,7 +84,7 @@ const Home = () => {
   };
 
   useEffect(() => {
-    fetchUserProfile();
+    Loggedinuser();
     feed();
   }, []);
 
@@ -134,7 +134,7 @@ const Home = () => {
             <div className="border-b border-border p-4">
               <div className="flex space-x-4">
                 <Avatar className="h-12 w-12">
-                  <AvatarImage src={user?.profilePic} alt="Your avatar" />
+                  <AvatarImage src={logged?.profilePic} alt="Your avatar" />
                   <AvatarFallback>You</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
@@ -149,8 +149,21 @@ const Home = () => {
                   <div className="flex justify-between items-center mt-2">
                     <div className="flex space-x-3 text-gray-500">
                       <button className="hover:text-blue-500 transition cursor-pointer">
-                        <Smile size={20} />
+                        <Smile
+                          size={20}
+                          onClick={() => setEmojiPicker(!emojiPicker)}
+                        />
                       </button>
+                      {emojiPicker && (
+                        <div className="absolute bottom-10 left-0 bg-white shadow-md p-2 rounded-lg z-20">
+                          <EmojiPicker
+                            onEmojiClick={(emoji) => {
+                              setContent(content + emoji.emoji);
+                              setEmojiPicker(false);
+                            }}
+                          />
+                        </div>
+                      )}
                       <button className="hover:text-green-500 transition cursor-pointer">
                         <ImageIcon size={20} />
                       </button>

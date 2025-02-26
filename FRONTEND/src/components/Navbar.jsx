@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Navbar = () => {
-  const { user } = useUserStore();
+  const { user, logged } = useUserStore();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -49,7 +49,7 @@ const Navbar = () => {
         {menuItems.map((item, index) => (
           <Button
             key={index}
-            variant={location.pathname === item.path ? 'default' : 'ghost'}
+            variant={location.pathname === item.path ? "default" : "ghost"}
             className="w-full justify-start space-x-4 px-3 transition-all duration-300 hover:bg-gray-800 rounded-lg"
             onClick={() => navigate(item.path)}
           >
@@ -66,12 +66,14 @@ const Navbar = () => {
               className="flex h-12 w-12 items-center justify-center rounded-full lg:w-full lg:justify-start lg:gap-2 lg:px-3 hover:bg-gray-800 transition-all duration-300"
             >
               <Avatar className="h-8 w-8 rounded">
-                <AvatarImage src={user.profilePic} alt="User" />
+                <AvatarImage src={logged.profilePic} alt="User" />
                 <AvatarFallback>U</AvatarFallback>
               </Avatar>
               <div className="hidden lg:block text-left">
-                <p className="text-sm font-medium">{user.fullName}</p>
-                <p className="text-xs text-muted-foreground">@{user.username}</p>
+                <p className="text-sm font-medium">{logged.fullName}</p>
+                <p className="text-xs text-muted-foreground">
+                  @{logged.username}
+                </p>
               </div>
             </Button>
           </DropdownMenuTrigger>
