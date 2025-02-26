@@ -7,13 +7,13 @@ const useUserStore = create(
     (set, get) => ({
       logged: null,
       user: null,
-      isLoading: false,
       tweets: [],
 
       fetchUserProfile: async (username) => {
-        set({ isLoading: true });
         try {
+          console.log("HEMLOOO")
           const response = await axiosInstance.get(`/user/${username}`);
+          console.log("API Response:", response.data.user);
           if (response.status === 200) {
             const {
               _id,
@@ -49,9 +49,7 @@ const useUserStore = create(
           }
         } catch (error) {
           console.error("Error fetching user profile", error);
-        } finally {
-          set({ isLoading: false });
-        }
+        } 
       },
 
       tweet: async (content, image = "") => {
@@ -78,7 +76,6 @@ const useUserStore = create(
       },
 
       Loggedinuser: async () => {
-        set({ isLoading: true });
         try {
           const response = await axiosInstance.get(`/user/profile`);
           console.log("API Response:", response.data.user);
@@ -117,9 +114,7 @@ const useUserStore = create(
           }
         } catch (error) {
           console.error("Error fetching user profile", error);
-        } finally {
-          set({ isLoading: false });
-        }
+        } 
       },
     }),
     {

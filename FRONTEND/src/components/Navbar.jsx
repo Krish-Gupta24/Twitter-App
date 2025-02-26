@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Home, Search, Mail, User, LogOut, Bell, Settings } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
 import { Button } from '@/components/ui/button';
@@ -16,10 +16,16 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const Navbar = () => {
-  const { user, logged } = useUserStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const {  Loggedinuser, logged } = useUserStore();
+  console.log(logged)
 
+  useEffect(() => {
+    Loggedinuser();
+  }, []);
+
+  
   const logouts = async () => {
     try {
       const response = await axiosInstance.post('/user/logout');
@@ -36,7 +42,7 @@ const Navbar = () => {
     { icon: <Home size={24} />, text: 'Home', path: '/home' },
     { icon: <Search size={24} />, text: 'Explore', path: '/search' },
     { icon: <Mail size={24} />, text: 'Messages', path: '/message' },
-    { icon: <User size={24} />, text: 'Profile', path: `/user/${user.username}` },
+    { icon: <User size={24} />, text: 'Profile', path: `/user/${logged.username}` },
     { icon: <Bell size={24} />, text: 'Notification', path: `/notification` },
   ];
 

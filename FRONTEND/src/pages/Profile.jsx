@@ -17,8 +17,12 @@ const Profile = () => {
   const [activeTab, setActiveTab] = useState("Tweets");
   const tabs = ["Tweets", "Replies", "Likes"];
   const [tweets, setTweets] = useState([]);
-
+  
   const { user, fetchUserProfile } = useUserStore();
+
+  useEffect(() => {
+    fetchUserProfile(username);
+  }, []);
 
   const userTweets = async () => {
     if (!username) {
@@ -38,9 +42,8 @@ const Profile = () => {
     }
   };
 
-  useEffect(() => {
-    fetchUserProfile(username);
-  }, [username]);
+  console.log(user)
+
 
   useEffect(() => {
     userTweets();
@@ -55,21 +58,21 @@ const Profile = () => {
             <Card className="p-8 bg-background shadow-2xl rounded-3xl border border-gray-700">
               <div className="flex items-center space-x-6">
                 <Avatar className="h-32 w-32 border-4 border-gray-700 shadow-xl">
-                  <AvatarImage src={user.profilePic} alt="Profile" />
+                  <AvatarImage src={user?.profilePic} alt="Profile" />
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
                 <div>
                   <h2 className="text-4xl font-extrabold text-white">
-                    {user.fullName}
+                    {user?.fullName}
                   </h2>
-                  <p className="text-gray-400 text-lg">@{user.username}</p>
-                  <p className="mt-3 text-gray-300 italic">{user.bio}</p>
+                  <p className="text-gray-400 text-lg">@{user?.username}</p>
+                  <p className="mt-3 text-gray-300 italic">{user?.bio}</p>
                   <div className="mt-5 flex space-x-8 text-gray-300 font-semibold">
                     <span>
-                      <strong>{user.following || 0}</strong> Following
+                      <strong>{user?.following || 0}</strong> Following
                     </span>
                     <span>
-                      <strong>{user.followers || 0}</strong> Followers
+                      <strong>{user?.followers || 0}</strong> Followers
                     </span>
                   </div>
                 </div>
