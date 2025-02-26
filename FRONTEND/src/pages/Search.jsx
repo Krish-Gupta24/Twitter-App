@@ -12,15 +12,15 @@ const SearchUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState([]);
 
+  const fetchUsers = async () => {
+    try {
+      const response = await axiosInstance.get("/user/explore");
+      setUsers(response.data); 
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await axiosInstance.get("/user/explore");
-        setUsers(response.data); 
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
 
     fetchUsers();
     
