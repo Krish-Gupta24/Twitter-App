@@ -10,7 +10,17 @@ const postSchema = new mongoose.Schema(
     username: {
       type: String,
       ref: "User",
-      required:true,
+      required: true,
+    },
+    fullName: {
+      type: String,
+      ref: "User",
+      required: true,
+    },
+    profilePic: {
+      type: String,
+      ref: "User",
+      required: true,
     },
     image: {
       type: String,

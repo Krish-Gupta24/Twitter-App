@@ -33,7 +33,9 @@ export const addPost = async (req, res) => {
 
     // ✅ Create new post with username as a string
     const newPost = new Posts({
-      username: user.username, 
+      username: user.username,
+      fullName: user.fullName,
+      profilePic: user.profilePic,
       userId,
       content,
       image,

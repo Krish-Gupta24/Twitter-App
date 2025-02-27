@@ -37,8 +37,7 @@ const useUserStore = create(
                 username,
                 bio,
                 profilePic:
-                  profilePic ||
-                  `https://api.dicebear.com/9.x/initials/svg?seed=${username}`,
+                  profilePic ,
                 followers: followers?.length || 0,
                 followings: followings?.length || 0,
                 tweets: tweets || [],

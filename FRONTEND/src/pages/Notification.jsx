@@ -21,8 +21,8 @@ const Notification = () => {
     queryKey: ["notifications"],
     queryFn: async () => {
       try {
-        const res = await axiosInstance.get("/notifications/"); // Ensure this endpoint is correct
-        return res.data; // No need to check res.ok
+        const res = await axiosInstance.get("/notifications/"); 
+        return res.data; 
       } catch (error) {
         throw new Error(
           error.response?.data?.error || "Failed to fetch notifications"

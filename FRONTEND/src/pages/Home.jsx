@@ -189,9 +189,9 @@ const Home = () => {
                     likeCount={item.likeCount || []}
                     replies={item.replies || []}
                     shared={item.shared || 0}
-                    avatar={item.userId?.profilePic}
-                    username={item.userId?.username}
-                    fullName={item.userId?.fullName}
+                    avatar={item?.profilePic}
+                    username={item?.username}
+                    fullName={item?.fullName}
                   />
                 ))
               ) : (
