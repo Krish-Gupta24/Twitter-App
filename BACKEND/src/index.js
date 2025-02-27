@@ -6,6 +6,7 @@ import app from "./app.js"
 import cors from "cors"
 import userRouter from "./routes/user.routes.js"
 import postRouter from "./routes/posts.routes.js"
+import notificationRouter from "./routes/notification.routes.js"
 
 dotenv.config()
 
@@ -24,3 +25,4 @@ app.use(express.json())
 //routes
 app.use("/api/user", userRouter)
 app.use("/api/post",postRouter)
+app.use("/api/notifications", notificationRouter);
