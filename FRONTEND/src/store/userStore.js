@@ -1,17 +1,19 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import axiosInstance from "@/utils/axiosInstance";
+import axios from "axios";
 
 const useUserStore = create(
   persist(
     (set, get) => ({
       logged: null,
       user: null,
+      selectedTweet: null,
       tweets: [],
 
       fetchUserProfile: async (username) => {
         try {
-          console.log("HEMLOOO")
+          console.log("HEMLOOO");
           const response = await axiosInstance.get(`/user/${username}`);
           console.log("API Response:", response.data.user);
           if (response.status === 200) {
@@ -36,8 +38,7 @@ const useUserStore = create(
                 email,
                 username,
                 bio,
-                profilePic:
-                  profilePic ,
+                profilePic: profilePic,
                 followers: followers?.length || 0,
                 followings: followings?.length || 0,
                 tweets: tweets || [],
@@ -48,7 +49,7 @@ const useUserStore = create(
           }
         } catch (error) {
           console.error("Error fetching user profile", error);
-        } 
+        }
       },
 
       tweet: async (content, image = "") => {
@@ -113,7 +114,23 @@ const useUserStore = create(
           }
         } catch (error) {
           console.error("Error fetching user profile", error);
-        } 
+        }
+      },
+
+      getTweet: async (postId) => {
+        try {
+          const response = await axiosInstance.get(`/post/post/${postId}`);
+
+          if (response.status === 200) {
+            console.log("API Response:", response.data);
+
+            set({
+              selectedTweet: response.data, // ✅ Correct key
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching Post", error);
+        }
       },
     }),
     {

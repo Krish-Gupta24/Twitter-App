@@ -8,13 +8,16 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Search } from "lucide-react";
 import axiosInstance from "@/utils/axiosInstance";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import useUserStore from "@/store/userStore";
 
 const SearchUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState([]);
   const [followStatus, setFollowStatus] = useState({});
   const navigate = useNavigate();
+  const { Gettweet, getTweet } = useUserStore()
+  const {postId}=useParams()
 
   useEffect(() => {
     const fetchUsers = async () => {

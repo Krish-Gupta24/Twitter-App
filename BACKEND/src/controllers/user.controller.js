@@ -1,6 +1,7 @@
 import User from "../models/user.models.js"
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
+import Posts from "../models/posts.modals.js";
 import { uploadOnCloudinary } from "../../utils/cloudinary.js";
 
 export const generateTokens = async (userId) => {
@@ -142,30 +143,43 @@ export const updateProfile = async (req, res) => {
     console.log("🟢 Request received for profile update");
 
     const userId = req.user.id;
+    const { fullName, username, bio } = req.body;
+    const profilePicFile = req.file ? req.file.path : null;
+
     console.log("🔹 User ID:", userId);
+    console.log("🖼️ Uploaded File:", req.file);
 
-    console.log("🖼️ Uploaded File:", req.file); // Log the uploaded file
-
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded!" });
+    // Upload to Cloudinary (only if a new profile pic is uploaded)
+    let avatar = null;
+    if (profilePicFile) {
+      avatar = await uploadOnCloudinary(profilePicFile);
+      console.log("☁️ Cloudinary Upload Response:", avatar);
     }
 
-    // Upload to Cloudinary
-    const avatar = await uploadOnCloudinary(req.file.path);
-    console.log("☁️ Cloudinary Upload Response:", avatar);
-
-    if (!avatar) {
-      return res.status(500).json({ message: "Failed to upload to Cloudinary" });
-    }
-
-    // Update user profile
+    // Find User
     const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-    user.profilePic = avatar.secure_url;
+    // Update User Fields
+    if (fullName) user.fullName = fullName;
+    if (username) user.username = username;
+    if (bio) user.bio = bio;
+    if (avatar) user.profilePic = avatar.secure_url; // Only update if a new image is uploaded
+
     await user.save();
+
+    // Update User Posts with new profile info
+    await Posts.updateMany(
+      { userId },
+      {
+        $set: {
+          profilePic:user.profilePic,
+          fullName: user.fullName,
+          profilePic: user.profilePic,
+          username: user.username,
+        },
+      }
+    );
 
     res.status(200).json({ message: "Profile updated successfully", user });
   } catch (error) {

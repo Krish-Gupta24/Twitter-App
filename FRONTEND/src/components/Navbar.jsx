@@ -41,7 +41,7 @@ const Navbar = () => {
     { icon: <Home size={24} />, text: 'Home', path: '/home' },
     { icon: <Search size={24} />, text: 'Explore', path: '/search' },
     { icon: <Mail size={24} />, text: 'Messages', path: '/message' },
-    { icon: <User size={24} />, text: 'Profile', path: `/user/${logged.username}` },
+    { icon: <User size={24} />, text: 'Profile', path: `/${logged.username}` },
     { icon: <Bell size={24} />, text: 'Notification', path: `/notification` },
   ];
 

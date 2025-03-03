@@ -1,8 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
+import fs from "fs/promises";
 import dotenv from "dotenv";
 dotenv.config();
-
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,21 +10,24 @@ cloudinary.config({
 });
 
 export const uploadOnCloudinary = async (localFilePath) => {
-  try {
-    if (!localFilePath) {
-      return null;
-    }
+  if (!localFilePath) return null;
 
+  try {
     const response = await cloudinary.uploader.upload(localFilePath, {
-      resource_type: "image", // Ensure only images are uploaded
+      resource_type: "image",
     });
 
-    fs.unlinkSync(localFilePath); // Remove local file after upload
+    await fs.unlink(localFilePath); 
     return response;
   } catch (error) {
-    if (fs.existsSync(localFilePath)) {
-      fs.unlinkSync(localFilePath); // Remove the file even if upload fails
+    console.error("❌ Cloudinary Upload Error:", error.message);
+
+    try {
+      await fs.unlink(localFilePath);
+    } catch (unlinkError) {
+      console.error("❌ Failed to delete local file:", unlinkError.message);
     }
+
     return null;
   }
 };

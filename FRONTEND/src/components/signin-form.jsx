@@ -45,7 +45,12 @@ export function SigninForm({ className, ...props }) {
     <form
       onSubmit={(e) => {
         e.preventDefault();
-        signup();
+        const confirmSubmission = window.confirm(
+          "YOU CANNOT CHANGE MAIL AND USERNAME. Do you want to continue?"
+        );
+        if (confirmSubmission) {
+          signup();
+        }
       }}
       className={cn("flex flex-col gap-6", className)}
       {...props}
@@ -72,8 +77,9 @@ export function SigninForm({ className, ...props }) {
             type="email"
             placeholder="Enter Email"
             value={email}
-            onChange={(e)=>setEmail(e.target.value)}
-            required />
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
         <div className="grid gap-2">
           <Label htmlFor="email">Username</Label>

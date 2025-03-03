@@ -8,24 +8,19 @@ import TrendingSection from "@/components/TrendingSection";
 import { Input } from "@/components/ui/input";
 import useUserStore from "@/store/userStore";
 import axiosInstance from "@/utils/axiosInstance";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { format } from "date-fns";
-import UpdateProfileModal from "@/hooks/updateProfile";
 
-const Profile = () => {
+const User = () => {
   const { username } = useParams();
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Tweets");
   const tabs = ["Tweets", "Replies", "Likes"];
   const [tweets, setTweets] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const { logged, fetchUserProfile } = useUserStore();
+  const { user, fetchUserProfile } = useUserStore();
 
   useEffect(() => {
-    if (!logged.username || logged.username !== username) {
-      fetchUserProfile(username);
-    }
-  }, [username, logged.username]);
+    fetchUserProfile(username);
+  }, [username]);
 
   useEffect(() => {
     const fetchUserTweets = async () => {
@@ -47,11 +42,6 @@ const Profile = () => {
     }
   }, [username]);
 
-  useEffect(() => {
-    if (logged.username && logged.username !== username) {
-      navigate(`/${logged.username}`, { replace: true });
-    }
-  }, [logged.username, username, navigate]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -62,39 +52,34 @@ const Profile = () => {
             <Card className="p-8 bg-background shadow-2xl rounded-3xl border border-gray-700">
               <div className="flex items-center space-x-6">
                 <Avatar className="h-32 w-32 border-4 border-gray-700 shadow-xl">
-                  <AvatarImage src={logged?.profilePic} alt="Profile" />
-                  <AvatarFallback>{logged?.fullName?.charAt(0)}</AvatarFallback>
+                  <AvatarImage src={user?.profilePic} alt="Profile" />
+                  <AvatarFallback>{user?.fullName?.charAt(0)}</AvatarFallback>
                 </Avatar>
+
                 <div className="flex-1">
                   <h2 className="text-4xl font-extrabold text-white">
-                    {logged?.fullName}
+                    {user?.fullName}
                   </h2>
-                  <p className="text-gray-400 text-lg">@{logged?.username}</p>
-                  <p className="mt-3 text-gray-300 italic">{logged?.bio}</p>
+                  <p className="text-gray-400 text-lg">@{user?.username}</p>
+                  <p className="mt-3 text-gray-300 italic">{user?.bio}</p>
                   <div className="mt-5 flex space-x-8 text-gray-300 font-semibold">
                     <span>
-                      <strong>{logged.followings || 0}</strong> Following
+                      <strong>{user.followings || 0}</strong> Following
                     </span>
                     <span>
-                      <strong>{logged?.followers || 0}</strong> Followers
+                      <strong>{user?.followers || 0}</strong> Followers
                     </span>
                   </div>
                 </div>
-                {username === logged.username ? (
-                  <Button
-                    className="flex items-center space-x-2 bg-blue-500 hover:bg-white"
-                    onClick={() => setIsEditing(true)}
-                  >
-                    <Edit size={18} />
-                    <span>Edit Profile</span>
-                  </Button>
-                ) : (
+
+                
                   <Button className="flex items-center space-x-2 bg-blue-500 hover:bg-white">
                     <span>Follow</span>
                   </Button>
-                )}
+                
               </div>
             </Card>
+
             <Card className="mt-6 p-6 bg-background shadow-xl rounded-2xl border border-gray-700">
               <div className="flex border-b border-gray-700 pb-2 mb-4 space-x-6 justify-center">
                 {tabs.map((tab) => (
@@ -112,11 +97,12 @@ const Profile = () => {
                   </Button>
                 ))}
               </div>
+
               {activeTab === "Tweets" && (
                 <div className="space-y-6">
                   {tweets.length > 0 ? (
                     tweets.map((tweet, index) => (
-                      <TweetCard key={index} tweet={tweet} user={logged} onClick={()=>{}} />
+                      <TweetCard key={index} tweet={tweet} user={user} />
                     ))
                   ) : (
                     <p className="text-center text-gray-400">
@@ -144,12 +130,6 @@ const Profile = () => {
           </div>
         </div>
       </div>
-      {isEditing && (
-        <UpdateProfileModal
-          user={logged}
-          closeModal={() => setIsEditing(false)}
-        />
-      )}
     </div>
   );
 };
@@ -172,8 +152,22 @@ const TweetCard = ({ tweet, user }) => {
         </div>
       </div>
       <p className="text-gray-200 text-base mt-2">{tweet.content}</p>
+      <div className="flex justify-around items-center mt-3 text-gray-500 text-sm">
+        <button className="flex items-center space-x-1 hover:text-blue-500 transition">
+          <MessageCircle size={18} />
+          <span>{tweet.replies.length ?? 0}</span>
+        </button>
+        <button className="flex items-center space-x-1 hover:text-green-500 transition">
+          <Repeat2 size={18} />
+          <span>{tweet.shared || 0}</span>
+        </button>
+        <button className="flex items-center space-x-1 hover:text-red-500 transition">
+          <Heart size={18} />
+          <span>{tweet.likeCount.length ?? 0}</span>
+        </button>
+      </div>
     </div>
   );
 };
 
-export default Profile;
+export default User;
