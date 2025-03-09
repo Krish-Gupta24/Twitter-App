@@ -14,25 +14,21 @@ import useUserStore from "@/store/userStore";
 const SearchUsers = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState([]);
-  const [followStatus, setFollowStatus] = useState({});
   const navigate = useNavigate();
-  const { Gettweet, getTweet } = useUserStore()
-  const {postId}=useParams()
+  const { Gettweet, getTweet } = useUserStore();
+  const { postId } = useParams();
 
+  // Get current user data from storage
+  const storedUser = localStorage.getItem("user-storage");
+  const parsedUser = JSON.parse(storedUser);
+  const currentUser = parsedUser?.state?.user;
+
+  // Fetch users and their follow status
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await axiosInstance.get("/user/explore");
         setUsers(response.data);
-
-        // Load follow status from localStorage
-        const storedFollowStatus = response.data.reduce((acc, user) => {
-          const status = localStorage.getItem(`followStatus_${user._id}`);
-          if (status !== null) acc[user._id] = JSON.parse(status);
-          return acc;
-        }, {});
-
-        setFollowStatus(storedFollowStatus);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
@@ -41,28 +37,62 @@ const SearchUsers = () => {
     fetchUsers();
   }, []);
 
-  const storedUser = localStorage.getItem("user-storage");
-  const parsedUser = JSON.parse(storedUser);
-  const currentUser = parsedUser?.state?.user;
+  // Function to check if a user is followed by the current user
+  const isFollowed = useCallback(
+    (user) => {
+      if (!currentUser) return false;
+      return user.followers.includes(currentUser._id);
+    },
+    [currentUser]
+  );
 
-  const toFollow = useCallback(async (userId) => {
-    try {
-      const response = await axiosInstance.patch(`/user/follow/${userId}`);
-      console.log("Follow response:", response.data);
+  // Handle follow/unfollow action
+  const toFollow = useCallback(
+    async (userId, e) => {
+      if (e) e.stopPropagation();
 
-      setFollowStatus((prev) => {
-        const newFollowStatus = !prev[userId];
-        localStorage.setItem(
-          `followStatus_${userId}`,
-          JSON.stringify(newFollowStatus)
+      try {
+        await axiosInstance.patch(`/user/follow/${userId}`);
+
+        // Update the users array to reflect the follow/unfollow change
+        setUsers((prevUsers) =>
+          prevUsers.map((user) => {
+            if (user._id === userId) {
+              // Create a copy of the user object
+              const updatedUser = { ...user };
+
+              // Toggle follow status
+              if (isFollowed(user)) {
+                // Remove current user from followers
+                updatedUser.followers = user.followers.filter(
+                  (id) => id !== currentUser._id
+                );
+              } else {
+                // Add current user to followers
+                updatedUser.followers = [...user.followers, currentUser._id];
+              }
+
+              return updatedUser;
+            }
+            return user;
+          })
         );
-        return { ...prev, [userId]: newFollowStatus };
-      });
-    } catch (error) {
-      console.error("Error following/unfollowing user:", error);
-    }
-  }, []);
+      } catch (error) {
+        console.error("Error following/unfollowing user:", error);
+      }
+    },
+    [currentUser, isFollowed]
+  );
 
+  // Navigate to user profile
+  const navigateToProfile = useCallback(
+    (username) => {
+      navigate(`/user/${username}`);
+    },
+    [navigate]
+  );
+
+  // Filter users based on search term and sort by follower count
   const filteredUsers = users
     .filter(
       (user) =>
@@ -95,8 +125,8 @@ const SearchUsers = () => {
                 filteredUsers.map((user) => (
                   <Card
                     key={user._id}
-                    className="p-4 shadow-sm hover:bg-gray-800 transition duration-200 flex items-center gap-4"
-                    onClick={() => navigate(`/user/${user.username}`)}
+                    className="p-4 shadow-sm hover:bg-gray-800 transition duration-200 flex items-center gap-4 cursor-pointer"
+                    onClick={() => navigateToProfile(user.username)}
                   >
                     <div className="flex items-center gap-4 w-full">
                       {/* Avatar and User Info */}
@@ -122,17 +152,14 @@ const SearchUsers = () => {
                       {/* Follow Button on the Right */}
                       <Button
                         data-userid={user._id}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toFollow(user._id);
-                        }}
+                        onClick={(e) => toFollow(user._id, e)}
                         className={`ml-auto px-4 py-2 rounded-md transition ${
-                          followStatus[user._id]
+                          isFollowed(user)
                             ? "bg-gray-500 text-white"
                             : "bg-blue-500 text-white"
                         }`}
                       >
-                        {followStatus[user._id] ? "Unfollow" : "Follow"}
+                        {isFollowed(user) ? "Unfollow" : "Follow"}
                       </Button>
                     </div>
                   </Card>
